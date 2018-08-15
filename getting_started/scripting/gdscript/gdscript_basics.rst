@@ -59,6 +59,10 @@ here's a simple example of how GDScript looks.
 
     extends BaseClass
 
+    # optional script class with optional icon
+
+    class_name MyClass, "res://path/to/optional/icon.svg"
+
     # member variables
 
     var a = 5
@@ -833,9 +837,13 @@ Classes
 ~~~~~~~
 
 By default, the body of a script file is an unnamed class and it can
-only be referenced externally as a resource or file. Class syntax is
-meant to be very compact and can only contain member variables or
-functions. Static functions are allowed, but not static members (this is
+only be referenced externally as a resource or file. Users can also define
+an explicit name for a script using the 'class_name' keyword, optionally
+followed by a path to an image resource. Named scripts appear in Godot
+Engine's editor with their base class icon or the custom defined icon.
+
+Class syntax is meant to be very compact and can only contain member variables
+or functions. Static functions are allowed, but not static members (this is
 in the spirit of thread safety, since scripts can be initialized in
 separate threads without the user knowing). In the same way, member
 variables (including arrays and dictionaries) are initialized every time
@@ -846,11 +854,18 @@ Below is an example of a class file.
 ::
 
     # saved as a file named myclass.gd
+    
+    class_name MyClass
 
     var a = 5
 
     func print_value_of_a():
         print(a)
+    
+    func print_script_three_times():
+        print(get_script())
+        print(ResourceLoader.load("res://myclass.gd"))
+        print(MyClass)
 
 Inheritance
 ^^^^^^^^^^^
