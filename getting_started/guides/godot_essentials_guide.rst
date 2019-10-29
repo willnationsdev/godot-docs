@@ -99,6 +99,14 @@ documentation related to the class.
 MainLoop, the SceneTree, and Nodes
 ----------------------------------
 
+The first Object to learn about is the :ref:`MainLoop <class_MainLoop>`. It
+manages the core iteration loop for your game and manages the OS window that
+your game runs in. This class detects when the window is in focus, when
+it crashes, or when the user quits, among other things. It also triggers
+all iterative processes such as things that execute every frame.
+
+Building on top of MainLoop is the :ref:`SceneTree <class_SceneTree>` class.
+
 - Mainloop
 - SceneTree
 - Nodes, aggregation/composition versus inheritance
