@@ -100,15 +100,22 @@ web documentation related to the class.
   "Search Help" utility. Press ``Shift + F1`` or go to ``Help > Search Help``
   in the Godot Editor to access it.
 
-MainLoop, the SceneTree and Nodes
----------------------------------
+.. note::
+
+  If you'd like to learn how to contribute to the Class Reference, please
+  see the related documentation on
+  :ref:`Submitting a pull request <doc_>` and
+  :ref:`Updating the Class Reference <doc_updating_the_class_reference>`.
+
+MainLoop, the SceneTree, Nodes, and notifications
+-------------------------------------------------
 
 The next class to learn about is the :ref:`MainLoop <class_MainLoop>` class. It
-manages the core iteration loop for your game and the OS window that your game
-runs in. It detects when the window is in focus, when the game crashes, and
-when the user quits, among other things. The data it provides changes based on
-the platform Godot runs on (desktop, web, mobile). It also handles iterative
-processes like frame calculations and checking for input.
+manages the game's core iteration loop and the OS window that it runs in. It
+detects when the window is in focus, when the game crashes, and when the user
+quits, among other things. The data it provides changes based on the platform
+Godot runs on (desktop, web, mobile). It also handles iterative processes like
+frame calculations and checking for input.
 
 MainLoop is then inherited by the :ref:`SceneTree <class_SceneTree>` class.
 The SceneTree is your actual Godot game instance. It builds on top of MainLoop
@@ -116,17 +123,57 @@ to enable users to manage a world of content, change it, organize it, and help
 it communicate over networks. To be more specific, SceneTree manages a tree
 hierarchy of :ref:`Nodes <class_Node>`.
 
-Nodes are the fundamental unit of the world. Nodes can inject data to track
-in the world (like a 2D position) or add behavior to the world (like drawing
-a Sprite). Composing hierarchies of nodes allows you to build more complex
-ideas from a library of basic features. The SceneTree sends nodes
-*notifications* when they need to do something and they respond by executing
-some behavior.
+Nodes are Godot's fundamental worldbuilding unit. They each can have one
+parent node and many child nodes. Attaching one node to another forms a node
+tree. Trees are recursive structures and thus have many significant features.
+You can subdivide a tree into smaller trees, attach trees to other trees as
+children (just like you can nodes), and even reorganize the nodes within a tree
+to produce a new tree. Trees can be created and destroyed in bulk. As such,
+nodes provide the foundation of a flexible game world that you can freely
+manipulate. 
+
+.. note::
+
+  You can read more information about the MainLoop, SceneTree, and Node
+  processing order :ref:`here <doc_scene_tree>`.
+
+Nodes are also Godot's entry point for behavior. The SceneTree sends a
+:ref:`*notification* <class_Object_method__notification>` to Nodes when any
+overall change to the game state occurs (new frame, input detected). Nodes
+opt-in to trigger logic on these notifications, so they can be somewhat
+lightweight. Each node then responds to a notification by interacting with
+the world.
+
+Some notifications are so common that they have dedicated "callbacks". A
+"callback" is a function that a *source* instance provides to a *target*
+instance to call later. In this case, the source Node instance implements a
+virtual method which Godot Engine, the target, calls when it sends
+notifications.
+
+It is common practice to prefix virtual methods with an underscore to
+help distinguish them. these special notification callbacks follow this
+convention. A node will only opt into responding to notifications for
+which you've already implemented a method. For examples of dedicated
+callbacks, see the underscore-prefixed methods in the
+:ref:`Node class <class_Node>`'s "Methods" table.
+
+.. note::
+
+  Notifications are an Object feature, so you will find many of them scattered
+  throughout the Class Reference. Search for ``NOTIFICATION_`` to find them.
+
+
 
 To add a feature to the world, you must embody that feature as a Node-derived
 class and add that node to the SceneTree.
 
 
+---
+When the engine does something
+and needs an Object instance to respond, it will send it a *notification*.
+The Object class has a :ref:`_notification() <class_Object_method__notification>`
+method which implements the response to each notification.
+---
 
 
 .. image:: /img/essentials_scene_dock_empty.png
