@@ -107,8 +107,8 @@ web documentation related to the class.
   :ref:`Submitting a pull request <doc_>` and
   :ref:`Updating the Class Reference <doc_updating_the_class_reference>`.
 
-MainLoop, the SceneTree, Nodes, and notifications
--------------------------------------------------
+MainLoop and the SceneTree
+--------------------------
 
 The next class to learn about is the :ref:`MainLoop <class_MainLoop>` class. It
 manages the game's core iteration loop and the OS window that it runs in. It
@@ -123,6 +123,9 @@ to enable users to manage a world of content, change it, organize it, and help
 it communicate over networks. To be more specific, SceneTree manages a tree
 hierarchy of :ref:`Nodes <class_Node>`.
 
+Nodes and Notifications
+-----------------------
+
 Nodes are Godot's fundamental worldbuilding unit. They each can have one
 parent node and many child nodes. Attaching one node to another forms a node
 tree. Trees are recursive structures and thus have many significant features.
@@ -130,31 +133,27 @@ You can subdivide a tree into smaller trees, attach trees to other trees as
 children (just like you can nodes), and even reorganize the nodes within a tree
 to produce a new tree. Trees can be created and destroyed in bulk. As such,
 nodes provide the foundation of a flexible game world that you can freely
-manipulate. 
-
-.. note::
-
-  You can read more information about the MainLoop, SceneTree, and Node
-  processing order :ref:`here <doc_scene_tree>`.
+manipulate. :ref:`Read more<doc_scene_tree>`.
 
 Nodes are also Godot's entry point for behavior. The SceneTree sends a
 :ref:`*notification* <class_Object_method__notification>` to Nodes when any
 overall change to the game state occurs (new frame, input detected). Nodes
 opt-in to trigger logic on these notifications, so they can be somewhat
 lightweight. Each node then responds to a notification by interacting with
-the world.
+the world. You add behavior to the world by overriding these notification
+responses.
 
 Some notifications are so common that they have dedicated "callbacks". A
 "callback" is a function that a *source* instance provides to a *target*
 instance to call later. In this case, the source Node instance implements a
-virtual method which Godot Engine, the target, calls when it sends
+virtual method which the target SceneTree instance calls when it sends
 notifications.
 
 It is common practice to prefix virtual methods with an underscore to
 help distinguish them. these special notification callbacks follow this
 convention. A node will only opt into responding to notifications for
-which you've already implemented a method. For examples of dedicated
-callbacks, see the underscore-prefixed methods in the
+which you've already implemented one of these methods. For examples of
+dedicated callbacks, see the underscore-prefixed methods at the top of the
 :ref:`Node class <class_Node>`'s "Methods" table.
 
 .. note::
@@ -162,18 +161,60 @@ callbacks, see the underscore-prefixed methods in the
   Notifications are an Object feature, so you will find many of them scattered
   throughout the Class Reference. Search for ``NOTIFICATION_`` to find them.
 
+  The master callback for all notifications,
+  :ref:`Object._notification <class_Object_method__notification>`, allows you
+  to detect notifications that do not have dedicated callbacks.
+
+Inheritance versus Aggregation
+------------------------------
+
+Inheritance is where one class *inherits* the behaviors of another class; they
+have an "is-a" relationship. Aggregation is where one class instance manages
+access to another class instance and *uses* it to execute behaviors for its
+sake; they have a "has-a" relationship.
+
+Godot's Node hierarchies employ a mix of the two. Related functionality that
+builds on each other is often combined into an inheritance relationship. For
+example:
+
+- Node *is* a structural unit.
+- Node2D *is* a Node that has a 2D position in the world. Child Node2Ds move
+  relative to their Node2D parents, so trees of Node2Ds move together.
+
+With a 2D position, we can create various chains of functionality:
+
+- CanvasItem *is* a Node2D that can draw things.
+- Sprite *is* a CanvasItem that draws an image relative to its 2D position.
+
+or...
+
+- PhysicsBody2D *is* a Node2D that interacts with the physical world.
+- KinematicBody2D *is* a Node2D that can move with custom physics movement.
+
+Each of these are things we may wish to use and reproduce often. They have
+properties that configure how they work and methods to engage in behaviors
+they support. They each have a class that builds a layer of features over
+the previous one.
+
+Now let's see this example:
+
+- A KinematicBody2D called "Player".
+- "Player" *has* a Sprite called "HeadSprite"
+- "Player" *has* a Sprite called "TorsoSprite"
+- "Player" *has* a Sprite called "LegsSprite"
+
+Now, we could define a new class, but creating 
+
+In aggregation, the owning instance delegates responsibilities to the owned
+instance and takes credit for the work. Other owning instances don't know whilst other owning instances have no idea it even owns
+other things
+
 
 
 To add a feature to the world, you must embody that feature as a Node-derived
 class and add that node to the SceneTree.
 
 
----
-When the engine does something
-and needs an Object instance to respond, it will send it a *notification*.
-The Object class has a :ref:`_notification() <class_Object_method__notification>`
-method which implements the response to each notification.
----
 
 
 .. image:: /img/essentials_scene_dock_empty.png
