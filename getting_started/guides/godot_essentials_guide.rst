@@ -48,8 +48,8 @@ The :ref:`Object API docs <class_Object>` help to demonstrate the above concepts
 
 .. _doc_reading_the_class_api::
 
-Reading the Class API
----------------------
+Reading the Class Reference
+---------------------------
 
 .. image:: img/essentials_object_api.png
 
@@ -98,13 +98,13 @@ web documentation related to the class.
 
   The entire API is also available offline from the Godot Editor's
   "Search Help" utility. Press ``Shift + F1`` or go to ``Help > Search Help``
-  in the Godot Editor to access it.
+  in the main toolbar to access it.
 
 .. note::
 
   If you'd like to learn how to contribute to the Class Reference, please
   see the related documentation on
-  :ref:`Submitting a pull request <doc_>` and
+  :ref:`Submitting a pull request <doc_pr_workflow>` and
   :ref:`Updating the Class Reference <doc_updating_the_class_reference>`.
 
 MainLoop and the SceneTree
@@ -123,8 +123,8 @@ to enable users to manage a world of content, change it, organize it, and help
 it communicate over networks. To be more specific, SceneTree manages a tree
 hierarchy of :ref:`Nodes <class_Node>`.
 
-Nodes, Node trees, and scenes
------------------------------
+Nodes, Node trees, and notifications
+------------------------------------
 
 Nodes are Godot's fundamental worldbuilding unit. They can each have one
 parent node and many child nodes. Attaching one node to another forms a
@@ -133,14 +133,15 @@ can even be a single node. This grants them many significant features. You
 can...
 
 1. build nodes into a tree.
-2. subdivide a tree into smaller trees/nodes.
+2. subdivide a tree into smaller trees.
 3. attach trees to other trees as children.
 4. reorganize the nodes within a tree to produce a new tree.
 5. masquerade a tree as a node.
 6. create and delete entire trees.
 
-As such, nodes provide the foundation of a flexible game world that you can
-freely manipulate.
+The point is that the distinction between a tree of nodes and a single node
+is irrelevant when dealing with them. Nodes provide the foundation of a
+flexible game world that you can freely manipulate.
 
 Nodes are also entry points for interacting with the world. The SceneTree
 sends all nodes inside it *notifications* about things that happen like
@@ -161,7 +162,10 @@ you can see, notifications are an Object feature, so you will find them
 scattered throughout the Class Reference. Search for ``NOTIFICATION_``
 constants to find them.
 
+Getting Started
+---------------
 
+So you've :ref:`downloaded
 
 
 
@@ -170,39 +174,6 @@ and add behaviors to them to bring those instances to life. Godot,
 in constrast, makes no distinction between 
 
 ~~~~
-
-Notifications
--------------
-
-As mentioned, Nodes are Godot's entry point for behavior. The SceneTree sends a
-:ref:`*notification* <class_Object_method__notification>` to Nodes when any
-overall change to the game state occurs (new frame, input detected). Nodes
-opt-in to trigger logic on these notifications, so they can be somewhat
-lightweight. Each node then responds to a notification by interacting with
-the world. You add behavior to the world by overriding these notification
-responses.
-
-Some notifications are so common that they have dedicated "callbacks". A
-"callback" is a function that a *source* instance provides to a *target*
-instance to call later. In this case, the source Node instance implements a
-virtual method which the target SceneTree instance calls when it sends
-notifications.
-
-It is common practice to prefix virtual methods with an underscore to
-help distinguish them. these special notification callbacks follow this
-convention. A node will only opt into responding to notifications for
-which you've already implemented one of these methods. For examples of
-dedicated callbacks, see the underscore-prefixed methods at the top of the
-:ref:`Node class <class_Node>`'s "Methods" table.
-
-.. note::
-
-  Notifications are an Object feature, so you will find many of them scattered
-  throughout the Class Reference. Search for ``NOTIFICATION_`` to find them.
-
-  The master callback for all notifications,
-  :ref:`Object._notification <class_Object_method__notification>`, allows you
-  to detect notifications that do not have dedicated callbacks.
 
 Inheritance, Aggregation, and Scenes
 ------------------------------------
