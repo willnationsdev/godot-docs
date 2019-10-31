@@ -123,19 +123,58 @@ to enable users to manage a world of content, change it, organize it, and help
 it communicate over networks. To be more specific, SceneTree manages a tree
 hierarchy of :ref:`Nodes <class_Node>`.
 
-Nodes and Notifications
------------------------
+Nodes, Node trees, and scenes
+-----------------------------
 
-Nodes are Godot's fundamental worldbuilding unit. They each can have one
-parent node and many child nodes. Attaching one node to another forms a node
-tree. Trees are recursive structures and thus have many significant features.
-You can subdivide a tree into smaller trees, attach trees to other trees as
-children (just like you can nodes), and even reorganize the nodes within a tree
-to produce a new tree. Trees can be created and destroyed in bulk. As such,
-nodes provide the foundation of a flexible game world that you can freely
-manipulate. :ref:`Read more<doc_scene_tree>`.
+Nodes are Godot's fundamental worldbuilding unit. They can each have one
+parent node and many child nodes. Attaching one node to another forms a
+tree. Trees are recursive structures, built out of subtrees. In fact, a tree
+can even be a single node. This grants them many significant features. You
+can...
 
-Nodes are also Godot's entry point for behavior. The SceneTree sends a
+1. build nodes into a tree.
+2. subdivide a tree into smaller trees/nodes.
+3. attach trees to other trees as children.
+4. reorganize the nodes within a tree to produce a new tree.
+5. masquerade a tree as a node.
+6. create and delete entire trees.
+
+As such, nodes provide the foundation of a flexible game world that you can
+freely manipulate.
+
+Nodes are also entry points for interacting with the world. The SceneTree
+sends all nodes inside it *notifications* about things that happen like
+advancing to a new frame or an input detection. Nodes can then opt-in to
+respond to these notifications and do things in the world.
+
+Users create a class that extends Node and which defines methods for
+responding to notifications. The Node class then passes these methods
+*back* to the engine so that it can *call* them at the correct time; hence,
+the methods are referred to as *callbacks*. They appear as virtual methods
+with leading underscores in the Class Reference. See the "Methods" table
+at the top of the :ref:`Node API docs<class_Node>` for examples.
+
+While the most frequently used notifications have their own callbacks,
+Godot also has a master callback for handling any notification:
+:ref:`Object._notification <class_Object_method__notification>`. As
+you can see, notifications are an Object feature, so you will find them
+scattered throughout the Class Reference. Search for ``NOTIFICATION_``
+constants to find them.
+
+
+
+
+
+Most other engines have you create mostly empty instances in the world
+and add behaviors to them to bring those instances to life. Godot,
+in constrast, makes no distinction between 
+
+~~~~
+
+Notifications
+-------------
+
+As mentioned, Nodes are Godot's entry point for behavior. The SceneTree sends a
 :ref:`*notification* <class_Object_method__notification>` to Nodes when any
 overall change to the game state occurs (new frame, input detected). Nodes
 opt-in to trigger logic on these notifications, so they can be somewhat
@@ -165,8 +204,8 @@ dedicated callbacks, see the underscore-prefixed methods at the top of the
   :ref:`Object._notification <class_Object_method__notification>`, allows you
   to detect notifications that do not have dedicated callbacks.
 
-Inheritance versus Aggregation
-------------------------------
+Inheritance, Aggregation, and Scenes
+------------------------------------
 
 Inheritance is where one class *inherits* the behaviors of another class; they
 have an "is-a" relationship. Aggregation is where one class instance manages
