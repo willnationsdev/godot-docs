@@ -38,7 +38,12 @@ extends Object, at some remove. Each possesses all the properties, methods,
 constants, and signals of the class it extends plus those unique to
 it. This chaining of elements in classes is called "Inheritance."
 
-To see examples of these elements defined in various scripting languages,
+As a Godot user, you will create a script file that defines a base class and
+a list of custom elements. You can then assign that script to an instance of
+that base class to append to or, in some cases, override, the base class's
+elements.
+
+To see examples of these elements defined in Godot's scripting languages,
 please see the language-specific sections of the :ref:`scripting documentation <doc_scripting>`.
 
 To see a full description of any class, one can check the
@@ -64,16 +69,15 @@ text identifier, i.e. name. On the right is the default value of the property.
 The methods table is a bit more complex. The left-hand column has the data type
 that is returned to you when you call, i.e. execute, the method. A ``void``
 data type means that it does not return a value; the method itself does
-something. The right-hand column starts with the name of the method followed by
-a parentheses-enclosed list of the variables that must be provided to the
-method, also known as "parameters." Note that this is a guide to what values
-you can feed to it, not an example of *syntax*.
+something. The right-hand column starts with the name of the method. A 
+parentheses-enclosed list of variables then follows. These are the "parameters"
+that you must give to the method to call it. Note that this is a guide to what
+values you can feed to it, not an example of *syntax*.
 
 Each parameter in the list follows the format
-``DataType ParameterName[= OptionalDefaultValue][Comma]``. When calling a
-method, you must provide parameters in the same order with compatible
-data types. If a default value is present, then you can omit it to have
-Godot assume its value.
+``DataType ParameterName[= OptionalDefaultValue][Comma]``. You must provide
+parameters in the same order with compatible data types. If a default value is
+present, then you can omit it to have Godot assume its value.
 
 Some methods have special suffixes to more clearly indicate their behavior.
 
@@ -88,11 +92,11 @@ Some methods have special suffixes to more clearly indicate their behavior.
 
 The constants section gives the name of the constant and the integer value it
 corresponds to. Enumerations are groups of constants with their own
-*data type*. For example, the Object class's ``CONNECT_*`` constants are
-associated with the ``ConnectFlags`` data type that Object defines.
+*data type*. For example, Object defines a ``ConnectFlags`` data type with
+enumerated values that appear as constants starting with ``CONNECT_*``.
 
-Some classes also have a Tutorial section that provides links to other official
-web documentation related to the class.
+Some classes also have a Tutorial section that provides links to other official,
+related web documentation.
 
 .. note::
 
@@ -123,8 +127,8 @@ to enable users to manage a world of content, change it, organize it, and help
 it communicate over networks. To be more specific, SceneTree manages a tree
 hierarchy of :ref:`Nodes <class_Node>`.
 
-Nodes, Node trees, and notifications
-------------------------------------
+Nodes, Node trees
+-----------------
 
 Nodes are Godot's fundamental worldbuilding unit. They can each have one
 parent node and many child nodes. Attaching one node to another forms a
@@ -139,16 +143,19 @@ can...
 5. masquerade a tree as a node.
 6. create and delete entire trees.
 
-The point is that the distinction between a tree of nodes and a single node
-is irrelevant when dealing with them. Nodes provide the foundation of a
-flexible game world that you can freely manipulate.
+The lack of a major distinction between a tree of nodes and a single node
+is what sets Godot apart. Nodes serve as the foundation of a flexible game
+world that you can freely manipulate.
+
+Notifications
+-------------
 
 Nodes are also entry points for interacting with the world. The SceneTree
 sends all nodes inside it *notifications* about things that happen like
 advancing to a new frame or an input detection. Nodes can then opt-in to
 respond to these notifications and do things in the world.
 
-Users create a class that extends Node and which defines methods for
+Users create a script that extends Node and which defines methods for
 responding to notifications. The Node class then passes these methods
 *back* to the engine so that it can *call* them at the correct time; hence,
 the methods are referred to as *callbacks*. They appear as virtual methods
@@ -160,18 +167,100 @@ Godot also has a master callback for handling any notification:
 :ref:`Object._notification <class_Object_method__notification>`. As
 you can see, notifications are an Object feature, so you will find them
 scattered throughout the Class Reference. Search for ``NOTIFICATION_``
-constants to find them.
+constants to find them; they will be the value of the
+``_notification`` method's parameter.
 
-Getting Started
+Creating scenes
 ---------------
 
-So you've :ref:`downloaded
+So you've :ref:`downloaded <https://godotengine.org/download>`__ a copy of
+Godot and :ref:`created a new project <doc_creating_a_new_project>`. How
+do you actually start building your SceneTree content?
 
+On the left side of the editor, you should see a "Scene" dock:
 
+.. image:: /img/essentials_scene_dock_empty.png
 
-Most other engines have you create mostly empty instances in the world
-and add behaviors to them to bring those instances to life. Godot,
-in constrast, makes no distinction between 
+Right now, because it is empty, it offers suggestions for a "root node" that
+you could add to a "scene". But this image alone gives rise to several
+questions:
+
+What is a "scene"?
+
+  The game world is built out of a node tree, but it wouldn't be reasonable to
+  build the entire tree in one
+  :ref:`hardcoded <https://stackoverflow.com/questions/1895789/what-does-hard-coded-mean>`__,
+  :ref:`monolithic <https://www.quora.com/What-is-the-difference-modular-vs-monolithic-programming-for-applications>`__ node hierarchy.
+  
+  Instead, we use tree feature #2 and subdivide our SceneTree's
+  entire node tree into subtrees. This lets us examine each
+  subtree in isolation to develop it, test it, and track its dependencies.
+  We call these subtrees "scenes" and save them to files:
+  ``.tscn`` and ``.scn`` for text and binary, respectively.
+
+What is a "root node"?
+
+  Because every scene is a tree, it necessarily has a root node.
+
+How do I decide which node to use as root?
+
+  Due to tree feature #3, you can nest scenes within other scenes. So, which
+  node you choose as the root affects how the scene interacts with others.
+
+  For example, if you create 2D content, you can put it under a
+  :ref:`Node <class_Node>` root or a :ref:`Node2D <class_Node2D>` root,
+  among other things. However, doing so has a very different impact on that
+  scene's relationship to its parent scene.
+
+  A Node2D will position itself relative to its parent Node2D's transform. A
+  Node, on the other hand, will ignore the parent's transform because it does
+  not have one. Therefore, your scene's 2D content either will or will not
+  follow its parent if that parent moves around.
+
+  In addition, the root node dictates how other scenes perceive the current
+  scene. By default, they can only see the root and interact with its internal
+  nodes via its methods. This is a manifestation of
+  :ref:`"Encapsulation" <https://en.wikipedia.org/wiki/Encapsulation_(computer_programming)>`__
+  from Object-Oriented Programming.
+  
+  Scenes are, in a way, like building a class in a visual editor (or rather,
+  a constructor for a class). All things in your game, even the environments,
+  are classes with the potential to have their own scripted functionality
+  and hidden internal structure.
+  
+Why would a root node ever NOT be in 3D, 2D, or UI space?
+
+  Not every class you create will need to have a position in space. Some
+  will be bundles of data or behavior that need to have
+  access to the game world, but do not have a physical location themselves.
+  This includes nodes that enable a behavior for something else, e.g. a Jump
+  node handles configuration and calculations for jump logic. It also
+  includes nodes that serve as standalone gameplay systems such as a targeting
+  system singleton.
+
+.. note::
+
+  Most engines have you...
+  
+  1. create an ``entity``.
+  2. add behavioral ``components`` to it
+  3. save it as a reproducible ``prefab``
+  4. stick many instances of this prefab inside a ``scene`` container.
+  
+  Godot instead just makes everything a ``node``.
+  
+  1. You can logically reduce a scene, the tree container for nodes, down to
+  a single node via its root. Ergo, nodes handle case #4.
+  2. Scenes are the serializable ``prefabs`` for game content. You can fully
+  reproduce a scene via script code too. Ergo, nodes handle case #3.
+  3. Whether a node is an ``entity``, or a ``component`` depends entirely on
+  context. If the node is meant to be a standalone thing, then it is an entity.
+  If it exists to provide features to some other thing, it's more like a
+  component.
+
+  So Godot unifies entities, components, prefabs, and levels all together into
+  just the concept of defining nodes. As a result, the Godot Editor is more
+  like a visual class editor rather than anything else.
 
 ~~~~
 
