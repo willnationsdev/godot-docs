@@ -56,15 +56,19 @@ The :ref:`Object API docs <class_Object>` help to demonstrate the above concepts
 Reading the Class Reference
 ---------------------------
 
-.. image:: img/essentials_object_api.png
+.. image:: img/essentials_api_inheritance.png
 
 Each page details the name and description of a class along with the class
 it inherits, those which inherit from it, and all elements related to it.
+
+.. image:: img/essentials_api_properties.png
 
 The properties table has three columns. On the left is the
 "data type". This could be a class, like ``Object``, or a primitive like int 
 (``5``), float (``3.14``), or bool (``true``/``false``). In the middle is the
 text identifier, i.e. name. On the right is the default value of the property.
+
+.. image:: img/essentials_api_methods.png
 
 The methods table is a bit more complex. The left-hand column has the data type
 that is returned to you when you call, i.e. execute, the method. A ``void``
@@ -90,8 +94,14 @@ Some methods have special suffixes to more clearly indicate their behavior.
 - `vararg`: the method accepts an unlimited number of parameters, indicated by
   a `...` at the end of the method's parameter list.
 
+.. image:: img/essentials_api_constants.png
+
 The constants section gives the name of the constant and the integer value it
-corresponds to. Enumerations are groups of constants with their own
+corresponds to.
+
+.. image:: img/essentials_api_enums.png
+
+Enumerations are groups of constants with their own
 *data type*. For example, Object defines a ``ConnectFlags`` data type with
 enumerated values that appear as constants starting with ``CONNECT_*``.
 
@@ -143,6 +153,8 @@ can...
 5. masquerade a tree as a node.
 6. create and delete entire trees.
 
+We'll refer to these later in this guide as "tree features".
+
 The lack of a major distinction between a tree of nodes and a single node
 is what sets Godot apart. Nodes serve as the foundation of a flexible game
 world that you can freely manipulate.
@@ -155,12 +167,12 @@ sends all nodes inside it *notifications* about things that happen like
 advancing to a new frame or an input detection. Nodes can then opt-in to
 respond to these notifications and do things in the world.
 
-Users create a script that extends Node and which defines methods for
-responding to notifications. The Node class then passes these methods
-*back* to the engine so that it can *call* them at the correct time; hence,
-the methods are referred to as *callbacks*. They appear as virtual methods
-with leading underscores in the Class Reference. See the "Methods" table
-at the top of the :ref:`Node API docs<class_Node>` for examples.
+Users create a script that ``extends Node`` and which defines methods that
+respond to notifications. The Node instance passes these methods
+*back* to the engine which *calls* them at the correct time; Therefore, they
+are known as *callbacks*. They appear as virtual methods with leading
+underscores in the Class Reference. See the "Methods" table at the top of the
+:ref:`Node API docs<class_Node>` for examples.
 
 While the most frequently used notifications have their own callbacks,
 Godot also has a master callback for handling any notification:
@@ -170,8 +182,35 @@ scattered throughout the Class Reference. Search for ``NOTIFICATION_``
 constants to find them; they will be the value of the
 ``_notification`` method's parameter.
 
-Creating scenes
----------------
+{{ Should I omit this code sample? Too confusing? }}
+.. tabs::
+ .. code-tab:: gdscript GDScript
+
+    extends Node
+    func _notification(what):
+        match what:
+            NOTIFICATION_PARENTED:
+                print("I was just parented to " + get_parent().name + "!")
+
+ .. code-tab:: csharp
+
+    public class MyNode : public Node
+    {
+        public override void _Notification(int what)
+        {
+            switch(what)
+            {
+                case Node.NOTIFICATION_PARENTED:
+                    GD.Print("I was just parented to " + GetParent().Name + "!");
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+Scenes
+------
 
 So you've :ref:`downloaded <https://godotengine.org/download>`__ a copy of
 Godot and :ref:`created a new project <doc_creating_a_new_project>`. How
@@ -198,69 +237,83 @@ What is a "scene"?
   We call these subtrees "scenes" and save them to files:
   ``.tscn`` and ``.scn`` for text and binary, respectively.
 
+  Due to tree feature #3, you can nest scenes within other scenes. This builds
+  a *tree of scenes* managed by your *SceneTree* instance.
+
 What is a "root node"?
 
   Because every scene is a tree, it necessarily has a root node.
+  Godot's architecture forces an Object-Oriented paradigm at every level.
+  All world content, even your environments, must be a direct extension of a
+  single Node class.
 
 How do I decide which node to use as root?
 
-  Due to tree feature #3, you can nest scenes within other scenes. So, which
-  node you choose as the root affects how the scene interacts with others.
+  Which node you choose as the root affects how the scene interacts with others.
 
   For example, if you create 2D content, you can put it under a
   :ref:`Node <class_Node>` root or a :ref:`Node2D <class_Node2D>` root,
-  among other things. However, doing so has a very different impact on that
-  scene's relationship to its parent scene.
+  among other things. Each has a unique impact on their relationship to the
+  content.
 
-  A Node2D will position itself relative to its parent Node2D's transform. A
-  Node, on the other hand, will ignore the parent's transform because it does
-  not have one. Therefore, your scene's 2D content either will or will not
-  follow its parent if that parent moves around.
+  A Node2D will position itself relative to its parent Node2D's
+  :ref:`Transform2D <class_Transform2D>`. A Node, however, will ignore the
+  parent's Transform2D because it does not have one. Therefore, your scene's 2D
+  content either will or will not follow a moving parent.
+  
+  Godot empowers you to use node compositions as
+  :ref:`declarative code <https://stackoverflow.com/questions/129628/what-is-declarative-programming>`__ 
+  to define the relationships between behaviors.
 
   In addition, the root node dictates how other scenes perceive the current
-  scene. By default, they can only see the root and interact with its internal
-  nodes via its methods. This is a manifestation of
-  :ref:`"Encapsulation" <https://en.wikipedia.org/wiki/Encapsulation_(computer_programming)>`__
-  from Object-Oriented Programming.
+  scene. By default, nested scenes appear as a single node (the root). It's
+  script then
+  :ref:`"encapsulates" <https://en.wikipedia.org/wiki/Encapsulation_(computer_programming)>`__
+  its internal nodes by providing an interface for interacting with them.
   
-  Scenes are, in a way, like building a class in a visual editor (or rather,
-  a constructor for a class). All things in your game, even the environments,
-  are classes with the potential to have their own scripted functionality
-  and hidden internal structure.
+  Scenes allow users to design a class's constructor in a visual editor.
+  Because the world and its elements are all a type of Node, each is also
+  a class instance with its own potential features and structure.
   
 Why would a root node ever NOT be in 3D, 2D, or UI space?
 
   Not every class you create will need to have a position in space. Some
-  will be bundles of data or behavior that need to have
-  access to the game world, but do not have a physical location themselves.
-  This includes nodes that enable a behavior for something else, e.g. a Jump
-  node handles configuration and calculations for jump logic. It also
-  includes nodes that serve as standalone gameplay systems such as a targeting
-  system singleton.
-
-.. note::
-
-  Most engines have you...
+  will be bundles of data or behavior that access the world.
   
-  1. create an ``entity``.
-  2. add behavioral ``components`` to it
-  3. save it as a reproducible ``prefab``
-  4. stick many instances of this prefab inside a ``scene`` container.
+  This includes nodes that enable a behavior for something else. For example,
+  you might have a Jump node that handles configuration and calculations for
+  jump logic.
   
-  Godot instead just makes everything a ``node``.
-  
-  1. You can logically reduce a scene, the tree container for nodes, down to
-  a single node via its root. Ergo, nodes handle case #4.
-  2. Scenes are the serializable ``prefabs`` for game content. You can fully
-  reproduce a scene via script code too. Ergo, nodes handle case #3.
-  3. Whether a node is an ``entity``, or a ``component`` depends entirely on
-  context. If the node is meant to be a standalone thing, then it is an entity.
-  If it exists to provide features to some other thing, it's more like a
-  component.
+  It also includes nodes that serve as standalone gameplay systems such as a
+  targeting system singleton.
 
-  So Godot unifies entities, components, prefabs, and levels all together into
-  just the concept of defining nodes. As a result, the Godot Editor is more
-  like a visual class editor rather than anything else.
+In other engines, users often have a workflow similar to this:
+
+1. create an ``entity``.
+2. add behavioral ``components`` to it
+3. save it as a reproducible ``prefab``
+4. stick many instances of this prefab inside a ``level`` container.
+
+Godot instead just makes everything a ``node``.
+
+1. Build a unique ``node`` that does what you need.
+    1. A ``node`` that represents a thing in your world is an ``entity``.
+    1. A ``node`` with features or data for a parent to use is a
+        ``component``.
+    1. Users design a ``node``, and the children it wraps, as a reproducible
+        class via a scene and/or script.
+    1. Nodes wrap other nodes and thus are containers too.
+
+So Godot unifies entities, components, prefabs, and levels all together into
+just the concept of defining node classes. The Godot Editor is a visual class
+editor. Even the Godot Editor itself is just a single
+:ref:`EditorNode <https://github.com/godotengine/godot/blob/master/editor/editor_node.h>`__
+class!
+
+Node flexibility
+----------------
+
+So let's finally get started!
 
 ~~~~
 
