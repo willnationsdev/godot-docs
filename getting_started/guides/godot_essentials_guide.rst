@@ -393,74 +393,13 @@ So let's finally get started!
    1. Right-click the InternetTweenSprite and select, "Make Scene Root".
    1. If you want to, reparent the other child nodes under the new root and delete the old root node.
 
-~~~~
+Navigating trees
+----------------
 
-Inheritance, Aggregation, and Scenes
-------------------------------------
-
-Inheritance is where one class *inherits* the behaviors of another class; they
-have an "is-a" relationship. Aggregation is where one class instance manages
-access to another class instance and *uses* it to execute behaviors for its
-sake; they have a "has-a" relationship.
-
-Godot's Node hierarchies employ a mix of the two. Related functionality that
-builds on each other is often combined into an inheritance relationship. For
-example:
-
-- Node *is* a structural unit.
-- Node2D *is* a Node that has a 2D position in the world. Child Node2Ds move
-  relative to their Node2D parents, so trees of Node2Ds move together.
-
-With a 2D position, we can create various chains of functionality:
-
-- CanvasItem *is* a Node2D that can draw things.
-- Sprite *is* a CanvasItem that draws an image relative to its 2D position.
-
-or...
-
-- PhysicsBody2D *is* a Node2D that interacts with the physical world.
-- KinematicBody2D *is* a Node2D that can move with custom physics movement.
-
-Each of these are things we may wish to use and reproduce often. They have
-properties that configure how they work and methods to engage in behaviors
-they support. They each have a class that builds a layer of features over
-the previous one.
-
-Now let's see this example:
-
-- A KinematicBody2D called "Player".
-- "Player" *has* a Sprite called "HeadSprite"
-- "Player" *has* a Sprite called "TorsoSprite"
-- "Player" *has* a Sprite called "LegsSprite"
-
-Now, we could define a new class, but creating 
-
-In aggregation, the owning instance delegates responsibilities to the owned
-instance and takes credit for the work. Other owning instances don't know whilst other owning instances have no idea it even owns
-other things
-
-
-
-To add a feature to the world, you must embody that feature as a Node-derived
-class and add that node to the SceneTree.
-
-
-
-
-.. image:: /img/essentials_scene_dock_empty.png
-
----
-
-- Mainloop
-- SceneTree
-- Nodes, aggregation/composition versus inheritance
 - NodePaths, $
 - ``onready``
-- Callbacks
-- Notifications
 - Signals
 - Groups
-- Static versus dynamic element access
 
 Memory, references and resources
 --------------------------------
