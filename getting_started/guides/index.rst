@@ -6,4 +6,4 @@ Godot guides
    :name: toc-learn-guides
 
    unity_to_godot
-   all_in_one_intro
+   godot_essentials_guide

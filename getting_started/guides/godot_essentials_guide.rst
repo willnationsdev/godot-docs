@@ -10,8 +10,6 @@ you've come to the right place.
 Object-oriented design
 ----------------------
 
-.. image:: img/all_in_one_objects.png
-
 Godot Engine uses an Object-Oriented design. This means it is
 made up of abstract templates that allow you to build concrete things.
 The abstract template is called a *class*. The things you actually interact
@@ -48,10 +46,10 @@ please see the language-specific sections of the :ref:`scripting documentation <
 
 To see a full description of any class, one can check the
 :ref:`Class Reference <doc_classes>`, also known as the 
-:ref:`API <https://en.wikipedia.org/wiki/Application_programming_interface>`__.
+`API <https://en.wikipedia.org/wiki/Application_programming_interface>`__.
 The :ref:`Object API docs <class_Object>` help to demonstrate the above concepts.
 
-.. _doc_reading_the_class_api::
+.. _doc_reading_the_class_api:
 
 Reading the Class Reference
 ---------------------------
@@ -183,8 +181,9 @@ constants to find them; they will be the value of the
 ``_notification`` method's parameter.
 
 {{ Should I omit this code sample? Too confusing? }}
+
 .. tabs::
- .. code-tab:: gdscript GDScript
+  .. code-tab:: gdscript GDScript
 
     extends Node
     func _notification(what):
@@ -192,7 +191,7 @@ constants to find them; they will be the value of the
             NOTIFICATION_PARENTED:
                 print("I was just parented to " + get_parent().name + "!")
 
- .. code-tab:: csharp
+  .. code-tab:: csharp
 
     public class MyNode : public Node
     {
@@ -212,13 +211,13 @@ constants to find them; they will be the value of the
 Scenes
 ------
 
-So you've :ref:`downloaded <https://godotengine.org/download>`__ a copy of
+So you've `downloaded <https://godotengine.org/download>`__ a copy of
 Godot and :ref:`created a new project <doc_creating_a_new_project>`. How
 do you actually start building your SceneTree content?
 
 On the left side of the editor, you should see a "Scene" dock:
 
-.. image:: /img/essentials_scene_dock_empty.png
+.. image:: img/essentials_scene_dock_empty.png
 
 Right now, because it is empty, it offers suggestions for a "root node" that
 you could add to a "scene". But this image alone gives rise to several
@@ -228,8 +227,8 @@ What is a "scene"?
 
   The game world is built out of a node tree, but it wouldn't be reasonable to
   build the entire tree in one
-  :ref:`hardcoded <https://stackoverflow.com/questions/1895789/what-does-hard-coded-mean>`__,
-  :ref:`monolithic <https://www.quora.com/What-is-the-difference-modular-vs-monolithic-programming-for-applications>`__ node hierarchy.
+  `hardcoded <https://stackoverflow.com/questions/1895789/what-does-hard-coded-mean>`__,
+  `monolithic <https://www.quora.com/What-is-the-difference-modular-vs-monolithic-programming-for-applications>`__ node hierarchy.
   
   Instead, we use tree feature #2 and subdivide our SceneTree's
   entire node tree into subtrees. This lets us examine each
@@ -262,13 +261,13 @@ How do I decide which node to use as root?
   content either will or will not follow a moving parent.
   
   Godot empowers you to use node compositions as
-  :ref:`declarative code <https://stackoverflow.com/questions/129628/what-is-declarative-programming>`__ 
+  `declarative code <https://stackoverflow.com/questions/129628/what-is-declarative-programming>`__
   to define the relationships between behaviors.
 
   In addition, the root node dictates how other scenes perceive the current
   scene. By default, nested scenes appear as a single node (the root). It's
   script then
-  :ref:`"encapsulates" <https://en.wikipedia.org/wiki/Encapsulation_(computer_programming)>`__
+  `encapsulates <https://en.wikipedia.org/wiki/Encapsulation_(computer_programming)>`__
   its internal nodes by providing an interface for interacting with them.
   
   Scenes allow users to design a class's constructor in a visual editor.
@@ -297,17 +296,15 @@ In other engines, users often have a workflow similar to this:
 Godot instead just makes everything a ``node``.
 
 1. Build a unique ``node`` that does what you need.
-    1. A ``node`` that represents a thing in your world is an ``entity``.
-    1. A ``node`` with features or data for a parent to use is a
-        ``component``.
-    1. Users design a ``node``, and the children it wraps, as a reproducible
-        class via a scene and/or script.
-    1. Nodes wrap other nodes and thus are containers too.
+   1. A ``node`` that represents a thing in your world is an ``entity``.
+   1. A ``node`` with features or data for a parent to use is a ``component``.
+   1. Users design a ``node``, and the children it wraps, as a reproducible class via a scene and/or script.
+   1. Nodes wrap other nodes and thus are containers too.
 
 So Godot unifies entities, components, prefabs, and levels all together into
 just the concept of defining node classes. The Godot Editor is a visual class
 editor. Even the Godot Editor itself is just a single
-:ref:`EditorNode <https://github.com/godotengine/godot/blob/master/editor/editor_node.h>`__
+`EditorNode <https://github.com/godotengine/godot/blob/master/editor/editor_node.h>`__
 class!
 
 Node flexibility
