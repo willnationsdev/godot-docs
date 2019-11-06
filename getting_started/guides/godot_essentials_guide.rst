@@ -258,11 +258,9 @@ How do I decide which node to use as root?
   A Node2D will position itself relative to its parent Node2D's
   :ref:`Transform2D <class_Transform2D>`. A Node, however, will ignore the
   parent's Transform2D because it does not have one. Therefore, your scene's 2D
-  content either will or will not follow a moving parent.
-  
-  Godot empowers you to use node compositions as
+  content either will or will not follow a moving parent. This kind of
   `declarative code <https://stackoverflow.com/questions/129628/what-is-declarative-programming>`__
-  to define the relationships between behaviors.
+  by way of node composition is a core feature of Godot Engine.
 
   In addition, the root node dictates how other scenes perceive the current
   scene. By default, nested scenes appear as a single node (the root). It's
@@ -270,34 +268,38 @@ How do I decide which node to use as root?
   `encapsulates <https://en.wikipedia.org/wiki/Encapsulation_(computer_programming)>`__
   its internal nodes by providing an interface for interacting with them.
   
-  Scenes allow users to design a class's constructor in a visual editor.
-  Because the world and its elements are all a type of Node, each is also
-  a class instance with its own potential features and structure.
+  Scenes allow users to design a class's
+  `constructor <https://www.techopedia.com/definition/5656/constructor>`__
+  in a visual editor.
   
 Why would a root node ever NOT be in 3D, 2D, or UI space?
 
   Not every class you create will need to have a position in space. Some
-  will be bundles of data or behavior that access the world.
+  will be bundles of data or behavior with a direct link to the world. 
   
   This includes nodes that enable a behavior for something else. For example,
   you might have a Jump node that handles configuration and calculations for
-  jump logic.
+  jump logic. Anything with a Jump node then has a common jump API and
+  implementation.
   
-  It also includes nodes that serve as standalone gameplay systems such as a
-  targeting system singleton.
+  It also includes nodes that serve as standalone gameplay systems. For
+  example, you might have a TurnBasedCombat singleton that manages the
+  state of a turn-based game. Other nodes in the game then have a common
+  point of reference for safely handling data
+  :ref:`they don't own <doc_autoloads_versus_internal_nodes>`.
 
 In other engines, users often have a workflow similar to this:
 
-1. create an ``entity``.
-2. add behavioral ``components`` to it
-3. save it as a reproducible ``prefab``
-4. stick many instances of this prefab inside a ``level`` container.
+1. Create an ``entity``.
+2. Add behavioral ``components`` to it
+3. Save it as a reproducible ``prefab``
+4. Stick many instances of this prefab inside a ``level`` container.
 
 Godot instead just makes everything a ``node``.
 
 1. Build a unique ``node`` that does what you need.
    1. A ``node`` that represents a thing in your world is an ``entity``.
-   1. A ``node`` with features or data for a parent to use is a ``component``.
+   1. A ``node`` with data or behavior for a parent to use is a ``component``.
    1. Users design a ``node``, and the children it wraps, as a reproducible class via a scene and/or script.
    1. Nodes wrap other nodes and thus are containers too.
 
@@ -311,6 +313,85 @@ Node flexibility
 ----------------
 
 So let's finally get started!
+
+1. "We want to create a 2D scene."
+   1. Create Node2D.
+
+1. "We want to create an image that fetches an image from the Internet, plays an SFX while loading and displays an animated loading icon, and then plays a sound effect *ding* when it loads and *pops* on the screen a bit."
+   1. Create Sprite child as child of Node2D and give it the following children:
+   1. HttpRequest: to submit the request for the image data over the Internet.
+   1. AudioStreamPlayer: to play the sound effect *ding*.
+   1. Tween: to animate the loading icon and scale the sprite's image to *pop* when done.
+   - Note that using nodes, we have a vague idea of what something does at a glance.
+     It *is* a Sprite that *has* the ability to communicate over the Internet, play audio, and do tween animations.
+
+1. "Right now, the Sprite is part of an environment, but we want it to be its own class. How do we do that?"
+   1. Right-click the Sprite node and select, "Save Branch as Scene". Save the scene file. Voila, it is now its own class.
+   1. Notice how the original scene has automatically replaced the node tree with an instance of our new scene.
+   1. Now click the slideshow icon beside the Sprite. Now you are editing the Sprite's class in a new tab!
+
+1. "What if I want to re-use parts of my new scene back in my old scene?"
+   1. In new scene, set AudioStreamPlayer property ``autoplay`` to true. Save the scene.
+   1. Switch back to environment scene. Right click root node and select, "Merge From Scene".
+   1. Click the top-right button of the popup to select the new scene. It's node tree will be displayed.
+   1. Select the AudioStreamPlayer and select "OK".
+   1. That specific AudioStreamPlayer configuration will be copied from that scene to the current scene. Any tree of nodes can be copied this way.
+   1. Confirm by seeing that the ``autoplay`` property is checked rather than unchecked (which is the default).
+
+1. "What if I want to be able to tweak and/or override a node's internals from an owning scene?"
+   1. In the environment scene, right-click the Sprite scene instance and toggle on, "Editable Children".
+   1. Now you can directly access that scene's child nodes!
+
+1. "What if I don't want other people on my team to be able to see and edit a node's internals from the editor?"
+   1. Create a GDScript file like so:
+
+        tool
+        extends Sprite
+        class_name InternetTweenSprite
+
+        var http
+        var audio
+        var tween
+
+        func _init():
+            http = HttpRequest.new()
+            audio = AudioStreamPlayer.new()
+            tween = Tween.new()
+            add_child(http)
+            add_child(audio)
+            add_child(tween)
+            texture = preload("res://icon.png")
+            modulate = Color(1, 0, 0)
+
+      Voila, you now have a custom scripted class with all of the same features and none of it exposed to the user!
+
+1. "What if I want to create a new class that extends my custom script?"
+   1. Right-click the InternetTweenSprite and select, "Extend Script".
+   1. The ScriptCreateDialog will open with "InternetTweenSprite" prefilled as the class to inherit from!
+   1. When you create the script, the node will automatically switch to using the new script.
+
+1. "What if I want to create a new class that extends my scene?"
+   1. Option A:
+      1. From the toolbar, select ``Scene > New Inherited Scene...``.
+      1. Select the ``internet_tween_sprite.tscn`` file.
+      1. Save your new scene. Done!
+   1. Option B:
+      1. From the toolbar, select ``Scene > New Scene``. 
+      1. Select the chain-link icon beside the plus sign in the ``Scene`` dock.
+      1. Select the ``internet_tween_sprite.tscn`` file.
+      1. Save your new scene. Done!
+
+1. "Now I want my environment to just be a character. How do I re-use the same node hierarchy, but put it under a KinematicBody2D instead of a Node2D? Do I have to remake it from scratch?"
+   1. Option A:
+      1. Create a new scene.
+      1. Use the "Merge from Scene" option to migrate a subset of desired nodes into the new scene.
+   1. Option B:
+      1. Right-click the root node and select, "Change Node".
+      1. Choose KinematicBody2D. Now the entire scene is a KinematicBody2D instead of a Node2D!
+
+1. "I've decided I no longer want this to be a character at all, but a scene that extends my InternetTweenSprite which is a child of the character. What do I do?"
+   1. Right-click the InternetTweenSprite and select, "Make Scene Root".
+   1. If you want to, reparent the other child nodes under the new root and delete the old root node.
 
 ~~~~
 
