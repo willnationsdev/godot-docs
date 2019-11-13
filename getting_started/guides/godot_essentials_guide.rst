@@ -37,14 +37,14 @@ constants, and signals of the class it extends plus those unique to
 it. This chaining of elements in classes is called "Inheritance."
 
 As a Godot user, you will create a script file that defines a base class and
-a list of custom elements. You can then assign that script to an instance of
-that base class to append to or, in some cases, override, the base class's
-elements.
+a list of custom elements. These elements are then appended to the base class.
+You can also override base class methods. Calling ``.new()`` on the script
+instantiates a new instance of the base class and assigns the script to it.
 
 To see examples of these elements defined in Godot's scripting languages,
 please see the language-specific sections of the :ref:`scripting documentation <doc_scripting>`.
 
-To see a full description of any class, one can check the
+To see a full description of any class, you can check the
 :ref:`Class Reference <doc_classes>`, also known as the 
 `API <https://en.wikipedia.org/wiki/Application_programming_interface>`__.
 The :ref:`Object API docs <class_Object>` help to demonstrate the above concepts.
@@ -73,8 +73,8 @@ that is returned to you when you call, i.e. execute, the method. A ``void``
 data type means that it does not return a value; the method itself does
 something. The right-hand column starts with the name of the method. A 
 parentheses-enclosed list of variables then follows. These are the "parameters"
-that you must give to the method to call it. Note that this is a guide to what
-values you can feed to it, not an example of *syntax*.
+that you must give to the method to call it. This demonstrates what
+values you can give to the method. It is not an example of *syntax*.
 
 Each parameter in the list follows the format
 ``DataType ParameterName[= OptionalDefaultValue][Comma]``. You must provide
@@ -150,6 +150,7 @@ can...
 4. reorganize the nodes within a tree to produce a new tree.
 5. masquerade a tree as a node.
 6. create and delete entire trees.
+7. move nodes between trees.
 
 We'll refer to these later in this guide as "tree features".
 
@@ -176,37 +177,9 @@ While the most frequently used notifications have their own callbacks,
 Godot also has a master callback for handling any notification:
 :ref:`Object._notification <class_Object_method__notification>`. As
 you can see, notifications are an Object feature, so you will find them
-scattered throughout the Class Reference. Search for ``NOTIFICATION_``
-constants to find them; they will be the value of the
-``_notification`` method's parameter.
-
-{{ Should I omit this code sample? Too confusing? }}
-
-.. tabs::
-  .. code-tab:: gdscript GDScript
-
-    extends Node
-    func _notification(what):
-        match what:
-            NOTIFICATION_PARENTED:
-                print("I was just parented to " + get_parent().name + "!")
-
-  .. code-tab:: csharp
-
-    public class MyNode : public Node
-    {
-        public override void _Notification(int what)
-        {
-            switch(what)
-            {
-                case Node.NOTIFICATION_PARENTED:
-                    GD.Print("I was just parented to " + GetParent().Name + "!");
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
+scattered throughout the Class Reference. For more information, see
+the best practices documentation on
+:ref:`Godot notifications <doc_godot_notifications>`.
 
 Scenes
 ------
@@ -242,9 +215,9 @@ What is a "scene"?
 What is a "root node"?
 
   Because every scene is a tree, it necessarily has a root node.
-  Godot's architecture forces an Object-Oriented paradigm at every level.
-  All world content, even your environments, must be a direct extension of a
-  single Node class.
+  Godot's architecture forces an Object-Oriented paradigm at every level
+  of game design. All world content, even your environments, must be a direct
+  extension of a single Node class.
 
 How do I decide which node to use as root?
 
@@ -298,8 +271,8 @@ In other engines, users often have a workflow similar to this:
 Godot instead just makes everything a ``node``.
 
 1. Build a unique ``node`` that does what you need.
-   1. A ``node`` that represents a thing in your world is an ``entity``.
-   1. A ``node`` with data or behavior for a parent to use is a ``component``.
+   1. A ``node`` that represents a thing in your world is an ``entity`` in name only.
+   1. A ``node`` with data or behavior for a parent to use is a ``component`` in name only.
    1. Users design a ``node``, and the children it wraps, as a reproducible class via a scene and/or script.
    1. Nodes wrap other nodes and thus are containers too.
 
@@ -308,6 +281,9 @@ just the concept of defining node classes. The Godot Editor is a visual class
 editor. Even the Godot Editor itself is just a single
 `EditorNode <https://github.com/godotengine/godot/blob/master/editor/editor_node.h>`__
 class!
+
+For more information on how Godot's classes work, see the best practices
+documentation on :ref:`what Godot classes are <doc_what_are_godot_classes>`.
 
 Node flexibility
 ----------------
@@ -396,10 +372,102 @@ So let's finally get started!
 Navigating trees
 ----------------
 
-- NodePaths, $
-- ``onready``
-- Signals
-- Groups
+So, you can build a tree of nodes and add scripts to them for custom data and
+behaviors. But how do you actually make one node interact with another node?
+
+NodePaths
+  The first and most common way is to use a :ref:`NodePath <class_NodePath>`. These
+  data types outline a relative path through a node tree or an absolute path
+  through the SceneTree to another node. Their syntax is similar to a linux
+  file system. See the NodePath API docs linked above for examples.
+
+  Once you have a NodePath, you can call
+  :ref:`Node.get_node() <class_Node_method_get_node>` to fetch references to
+  nodes.
+
+  .. note::
+
+    NodePaths affect the relationship between nodes. You can only safely access
+    descendant nodes created and maintained by your script or those internal to
+    the node's scene. Linking NodePaths to nodes outside of the "class"
+    (via script or scene) opens you up to runtime errors.
+    
+    For example, if you create a root node that depends on a sibling node to
+    exist, then the script or scene will no longer function properly by itself.
+    It has external dependencies that must accompany it, with no way to
+    structurally document and enforce those dependencies.
+    
+    To protect yourself, use :ref:`exported NodePaths <doc_gdscript_exports>`
+    to allow your scene to configure the NodePath's value. This makes the
+    script defer to the scene's data. And because the scene now maintains the
+    data, Godot can update the NodePath for you as nodes move around.
+
+  .. note::
+
+    GDScript has special shorthand symbols for creating NodePaths and fetching
+    nodes.
+
+    .. tabs::
+      .. code-tab:: gdscript GDScript
+
+        "A/B" # regular string
+        @"A/B" # equal to NodePath("A/B")
+        $"A/B" # equal to get_node("A/B")
+        $A/B # $-syntax also works without quotes in most cases.
+
+Groups
+
+  Sometimes you need cross-scene collections of nodes. You could be cycling
+  through a subset of cameras, accessing all the lights in a room, or iterating
+  over all the enemies in a level.
+  
+  For these situations, you can use "groups". A group is a string that you
+  associate with a Node. The SceneTree instance will keep a list of which nodes
+  are in which group.
+
+  .. image:: img/essentials_node_dock_groups
+
+  Nodes can be in any number of groups. You can
+  :ref:`add them <class_Node_add_to_group>` to groups,
+  :ref:`remove them <class_Node_remove_from_group>` from groups,
+  :ref:`fetch all nodes <class_SceneTree_method_get_nodes_in_group>` in a group,
+  :ref:`check if a group exists <class_SceneTree_method_has_group>`, and even
+  :ref:`call a method on every node <class_SceneTree_method_call_group>` in a
+  group, among other things.
+  
+Signals
+
+  So far, you've learned how to work with descendant nodes and those internal
+  to a scene via exported NodePaths. You've also learned how to work with mass
+  groups of related nodes across scenes (groups). How then do you work with
+  nodes higher up the chain? Ancestral dependencies inhibit the reuse of scripts
+  and scenes and invite maintenance costs.
+
+  What you want is for your descendant to know nothing about the ancestor.
+  Calling a method on a parent to pass them information implies that the
+  parent needs to have the given method. But wait! We can use Godot's
+  :ref:`Object.call <class_Object_method_call>` method to dynamically look up
+  and execute method calls; couldn't we then declare that we just want to call
+  other instances' methods? If we specify a function signature and have other
+  instances register their methods to be called, then we can iterate through the
+  list of connected methods and execute them without ever knowing which instances
+  are involved.
+
+  This concept is known as a "signal". Instances "connect" methods to another
+  instance's signal and when that instance "emits" the signal, it calls all
+  connected methods. There is no need for the signaling instance to know which
+  methods are connected or which instances they belong to!
+
+  General convention is to "call down, signal up" when communicating in a tree
+  hierarchy. This keeps your nodes free of hierarchical dependencies and allows
+  you to reuse them in any manner of situations.
+
+  For more information and examples of signals, see the relevant documentation
+  in 
+  :ref:`GDScript <doc_signals>`, :ref:`C# <doc_c_sharp_differences>`,
+  :ref:`VisualScript <doc_getting_started_visual_script>`, and
+  :ref:`NativeScript C++ <doc_gdnative_cpp_example>` as well as how to
+  :ref:`instance scenes via signals <doc_instancing_with_signals>`.
 
 Memory, references and resources
 --------------------------------
