@@ -387,21 +387,12 @@ NodePaths
 
   .. note::
 
-    NodePaths affect the relationship between nodes. You can only safely access
-    descendant nodes created and maintained by your script or those internal to
-    the node's scene. Linking NodePaths to nodes outside of the "class"
-    (via script or scene) opens you up to runtime errors.
+    NodePaths affect the relationship between nodes. Relying on a NodePath
+    implies having a dependency. For guidance on the best way to form
+    relationships between scenes, including with NodePaths,
+    please see the best practices documentation on
+    :ref:`scene organization <doc_scene_organization>`.
     
-    For example, if you create a root node that depends on a sibling node to
-    exist, then the script or scene will no longer function properly by itself.
-    It has external dependencies that must accompany it, with no way to
-    structurally document and enforce those dependencies.
-    
-    To protect yourself, use :ref:`exported NodePaths <doc_gdscript_exports>`
-    to allow your scene to configure the NodePath's value. This makes the
-    script defer to the scene's data. And because the scene now maintains the
-    data, Godot can update the NodePath for you as nodes move around.
-
   .. note::
 
     GDScript has special shorthand symbols for creating NodePaths and fetching
@@ -413,7 +404,7 @@ NodePaths
         "A/B" # regular string
         @"A/B" # equal to NodePath("A/B")
         $"A/B" # equal to get_node("A/B")
-        $A/B # $-syntax also works without quotes in most cases.
+        $A/B # $-syntax also works without quotes in descendant cases (no "..").
 
 Groups
 
@@ -434,7 +425,16 @@ Groups
   :ref:`check if a group exists <class_SceneTree_method_has_group>`, and even
   :ref:`call a method on every node <class_SceneTree_method_call_group>` in a
   group, among other things.
-  
+
+  For additional examples of groups in action, see the 
+  :ref:`step-by-step tutorial's group introduction <doc_scripting_continued>` or
+  the best practices documentation on
+  :ref:`method propagation <doc_propagation>` within the 
+  :ref:`godot notifications <doc_godot_notifications>` section, its
+  illustration of :ref:`groups as implied interfaces <doc_godot_interfaces>`,
+  or its use of groups to
+  :ref:`organize scene relationships <doc_scene_organization>`.
+
 Signals
 
   So far, you've learned how to work with descendant nodes and those internal
@@ -468,6 +468,9 @@ Signals
   :ref:`VisualScript <doc_getting_started_visual_script>`, and
   :ref:`NativeScript C++ <doc_gdnative_cpp_example>` as well as how to
   :ref:`instance scenes via signals <doc_instancing_with_signals>`.
+
+  For more practical information on when to use signals, see the best practices
+  documentation on :ref:`scene organization <doc_scene_organization>`.
 
 Memory, references and resources
 --------------------------------
