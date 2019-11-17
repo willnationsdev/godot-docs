@@ -472,15 +472,88 @@ Signals
   For more practical information on when to use signals, see the best practices
   documentation on :ref:`scene organization <doc_scene_organization>`.
 
-Memory, references and resources
---------------------------------
+Memory with nodes, references, and resources
+--------------------------------------------
 
-- Memory management
-- Reference-counting
-- Serialization
-- Resources
-- Scripts and PackedScenes
-- Custom Resources
+Computers have two main types of memory:
+`stack and heap <https://www.geeksforgeeks.org/stack-vs-heap-memory-allocation>`__.
+The primitive and
+struct-based data types such as ``int``, ``bool``, and ``Vector2`` are
+stack-allocated while Object classes are heap-allocated. The main
+difference is that you are responsible for properly deleting the memory
+allocated to your own Objects. You can read the
+specifics on how Godot internally handles its memory model concepts
+:ref:`here <doc_core_types>`.
+
+Most other languages and engines will handle object deletion for you in the
+background (known as "garbage collection"), but this can lead to unexpected
+hiccups when a game suddenly pauses a frame to clean up memory. To ensure
+that a game's behavior is more deterministic and consistent, Godot has
+no such garbage collection system. Any Object can be manually freed
+immediately using the `:ref:`.free() <class_Object_method_free>`` method.
+
+However, while you must delete your own Objects, the two most commonly
+used Object types, :ref:`Node <class_Node>` and
+:ref:`Resource <class_Resource>`, have built-in systems to help them
+manage memory for you in deterministic ways.
+
+Nodes, as you've learned, form node tree hierarchies. Whenever a node is
+deleted, it will automatically delete its children beforehand. And when
+each of those children receive the command to delete themselves, then they
+too will delete their children beforehand. This recursive process continues
+until the leaf nodes finally delete themselves and the entire node tree is
+systematically deleted from the bottom up.
+
+Resources extend a special class called :ref:`Reference <class_Reference>`.
+The Reference class is an Object that uses "reference-counted" memory.
+This means that if you create an instance of a Reference class and then make
+a copy of it, the second variable will actually hold a reference to the *same*
+instance. That is, you will not be able to make multiple copies of an
+identical Reference instance. Reference-counted memory is only deleted
+when all references to the instance have left
+`scope <https://en.wikipedia.org/wiki/Scope_(computer_science)>`__.
+
+This feature extends into Resources so that
+attempting to load two variables from the same file path actually returns
+the same Resource class instance. You can create a new Resource instance
+either by calling ``.new()`` on the Resource's script, or by creating it
+in the Inspector. In these cases, you have a truly new instance because
+the resource has not yet been saved to a file. If you already have a
+Resource and you must create a duplicate of it, you can call the
+``.duplicate()`` method to force a duplication of the Resource's memory
+and return a new instance.
+
+Scripts and scenes are themselves resources. Every script file, when
+loaded, is parsed and converted into a :ref:`Script <class_Script>`. Scenes
+are likewise built into a :ref:`PackedScene <class_PackedScene>` resource.
+As such, these classes produce reference-counted instances that share cached
+memory. If, for example, you define a constant on a script, then loading that
+script multiple times will not allocate more memory for that data.
+
+You can also create your own
+:ref:`custom Resource types <doc_resources_custom_resources>`.
+They are effective tools for designing and organizing the data structures you
+need for your projects, in addition to a host of other benefits described in
+the linked documentation.
+
+Godot Engine doesn't, by default, keep track of scripts' names. It recognizes
+them just like any other Resource: by their file path. However, Godot 3.1
+added the ability to
+:ref:`define globally recognizable names <doc_scripting_continued_class_name>`.
+Support is limited to a few languages for now, but more support is planned in
+the future.
+
+.. note::
+
+  This is unrelated to the C# language's internal ability to force a name
+  for every class and reference each class in the project by name.
+
+For more information on reference-counting, see
+`this article <https://mortoray.com/2012/01/08/what-is-reference-counting/>`__.
+
+For more information on how reference-counting
+compares to garbage collection, see
+`this article <https://medium.com/computed-comparisons/garbage-collection-vs-automatic-reference-counting-a420bd4c7c81>`__.
 
 The editor, tools, and plugins
 ------------------------------
