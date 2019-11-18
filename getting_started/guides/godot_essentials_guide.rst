@@ -475,43 +475,102 @@ Signals
 Memory with nodes, references, and resources
 --------------------------------------------
 
-Computers have two main types of memory:
-`stack and heap <https://www.geeksforgeeks.org/stack-vs-heap-memory-allocation>`__.
-The primitive and
-struct-based data types such as ``int``, ``bool``, and ``Vector2`` are
-stack-allocated while Object classes are heap-allocated. The main
-difference is that you are responsible for properly deleting the memory
-allocated to your own Objects. You can read the
-specifics on how Godot internally handles its memory model concepts
-:ref:`here <doc_core_types>`.
+Computer science has many topics related to memory that are worth
+researching such as
+`stack vs. heap <https://www.geeksforgeeks.org/stack-vs-heap-memory-allocation>`__,
+`a breadth/depth of knowledge on data structures <>`__,
+`algorithm analysis <>`__, and
+`data-oriented design <>`__. However, as a Godot user, the primary memory 
+issue you must learn to handle is memory management.
 
-Most other languages and engines will handle object deletion for you in the
-background (known as "garbage collection"), but this can lead to unexpected
-hiccups when a game suddenly pauses a frame to clean up memory. To ensure
-that a game's behavior is more deterministic and consistent, Godot has
-no such garbage collection system. Any Object can be manually freed
-immediately using the `:ref:`.free() <class_Object_method_free>`` method.
+Godot uses manual memory management. This means that you are
+responsible for safely allocating and freeing your own memory. Your
+game *has* to clean up memory at some point. You can either do it
+yourself, on your own terms, or via 
+`garbage collection <>`__
+which will stop unpredictably to handle it for you.
 
-However, while you must delete your own Objects, the two most commonly
-used Object types, :ref:`Node <class_Node>` and
-:ref:`Resource <class_Resource>`, have built-in systems to help them
-manage memory for you in deterministic ways.
+.. note::
 
-Nodes, as you've learned, form node tree hierarchies. Whenever a node is
-deleted, it will automatically delete its children beforehand. And when
-each of those children receive the command to delete themselves, then they
-too will delete their children beforehand. This recursive process continues
-until the leaf nodes finally delete themselves and the entire node tree is
-systematically deleted from the bottom up.
+  You can
+  read the specifics on how Godot internally handles its memory model backend
+  in its :ref:`core types <doc_core_types>` documentation.
 
-Resources extend a special class called :ref:`Reference <class_Reference>`.
-The Reference class is an Object that uses "reference-counted" memory.
-This means that if you create an instance of a Reference class and then make
-a copy of it, the second variable will actually hold a reference to the *same*
-instance. That is, you will not be able to make multiple copies of an
-identical Reference instance. Reference-counted memory is only deleted
-when all references to the instance have left
-`scope <https://en.wikipedia.org/wiki/Scope_(computer_science)>`__.
+You can delete any Godot Object immediately with the
+`:ref:`.free() <class_Object_method_free>`` method. But, low-level memory
+management is a huge hassle, so Godot provides some conveniences to help you.
+Most of the time, you work with Objects deriving from either
+:ref:`Node <class_Node>` or :ref:`Resource <class_Resource>`. These classes
+have built-in systems to help manage memory for you in deterministic ways.
+
+Nodes
+  Nodes, as you've learned, form node tree hierarchies. Whenever you delete a
+  node, it automatically deletes its children beforehand. And when
+  each of those children receive the command to delete themselves, then they
+  too will delete their children beforehand. This recursive process continues
+  until the leaf nodes finally delete themselves. The node tree systematically
+  deletes itself from the bottom up!
+
+  Nodes in particular also have a
+  :ref:`queue_free() <class_Node_method_queue_free>` method. This delays
+  its deletion until the next idle frame to prevent any discernible
+  lag.
+
+Resources
+  Resources extend the :ref:`Reference <class_Reference>` class.
+  References are Objects that use "reference-counted" memory. These keep track
+  of how many references to the instance exist in 
+  `scope <https://en.wikipedia.org/wiki/Scope_(computer_science)>`__ and does
+  not delete the instance until all references are gone.
+
+  For example, if you create an Object inside of a function and then end the
+  function, the variable exits scope, removing all references to the
+  Object instance. It has created a "memory leak." Every time you execute that
+  function, you leak more and more memory. If done frequently, you
+  consume so much RAM that it eventually lags the user's computer or crashes
+  the program.
+
+  Conversely, if you create a Reference inside of a function and then end
+  the function, the Reference recognizes that the final reference to the data
+  is gone. It triggers an automatic ``free()`` on the instance in the
+  background. You do not leak any memory and your game continues running
+  smoothly.
+
+  Resources will track references in the same way. Loading a file for the
+  first time allocates a new instance. Subsequent loads simply return
+  the existing instance and if you no longer have any references, they
+  delete themselves for you. In addition, the Godot Editor has a built-in
+  feature to cache resources.
+
+Scripts and Scenes
+  Scripts are also resources. Every script file loads as a
+  :ref:`Script <class_Script>` instance. And because every
+  script file is its own class, you can rest assured that any constants
+  declared in a file are *static*. That is, it exists on the Script
+  rather than on Object instances to which you've assigned the script.
+
+  Godot likewise loads a scene file
+  into a :ref:`PackedScene <class_PackedScene>` instance. You can even
+  build your own scenes using the
+  :ref:`PackedScene.pack() <class_PackedScene_method_pack>` method; This
+  can be useful for building your own tools for level generation, modding,
+  or in-game level editing.
+
+  .. note::
+
+    Godot's resources can both reference other resources and internally
+    store their own sub-resources.
+
+    This extends to scenes. They can have embedded resources such as
+    meshes, materials, shaders, particle effects, etc.
+    
+    However, Godot will try to save on memory allocations unless directed
+    otherwise. If you duplicate a scene, or if you copy/paste a
+    sub-resource, then it will NOT create a new resource. Instead, it
+    makes both scenes reference the same sub-resource.
+
+    To force Godot to create a new sub-resource, do X.
+
 
 This feature extends into Resources so that
 attempting to load two variables from the same file path actually returns
@@ -522,13 +581,6 @@ the resource has not yet been saved to a file. If you already have a
 Resource and you must create a duplicate of it, you can call the
 ``.duplicate()`` method to force a duplication of the Resource's memory
 and return a new instance.
-
-Scripts and scenes are themselves resources. Every script file, when
-loaded, is parsed and converted into a :ref:`Script <class_Script>`. Scenes
-are likewise built into a :ref:`PackedScene <class_PackedScene>` resource.
-As such, these classes produce reference-counted instances that share cached
-memory. If, for example, you define a constant on a script, then loading that
-script multiple times will not allocate more memory for that data.
 
 You can also create your own
 :ref:`custom Resource types <doc_resources_custom_resources>`.
