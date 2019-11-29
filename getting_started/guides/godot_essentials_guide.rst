@@ -478,16 +478,17 @@ Memory with nodes, references, and resources
 Computer science has many topics related to memory that are worth
 researching such as
 `stack vs. heap <https://www.geeksforgeeks.org/stack-vs-heap-memory-allocation>`__,
-`a breadth/depth of knowledge on data structures <>`__,
-`algorithm analysis <>`__, and
-`data-oriented design <>`__. However, as a Godot user, the primary memory 
+`a breadth/depth of knowledge on data structures <https://www.studytonight.com/data-structures/stack-data-structure>`__,
+`algorithm analysis <https://www.studytonight.com/data-structures/aysmptotic-notations>`__, and
+`data-oriented design <https://en.wikipedia.org/wiki/Data-oriented_design>`__.
+However, as a Godot user, the primary memory 
 issue you must learn to handle is memory management.
 
 Godot uses manual memory management. This means that you are
 responsible for safely allocating and freeing your own memory. Your
 game *has* to clean up memory at some point. You can either do it
 yourself, on your own terms, or via 
-`garbage collection <>`__
+`garbage collection <https://en.wikipedia.org/wiki/Garbage_collection_(computer_science)>`__
 which will stop unpredictably to handle it for you.
 
 .. note::
@@ -508,12 +509,12 @@ Nodes
   node, it automatically deletes its children beforehand. And when
   each of those children receive the command to delete themselves, then they
   too will delete their children beforehand. This recursive process continues
-  until the leaf nodes finally delete themselves. The node tree systematically
-  deletes itself from the bottom up!
+  until the leaf nodes, with no children, finally delete themselves. The node
+  tree systematically deletes itself from the bottom up!
 
   Nodes in particular also have a
   :ref:`queue_free() <class_Node_method_queue_free>` method. This delays
-  its deletion until the next idle frame to prevent any discernible
+  their deletion until the next idle frame to minimize any discernible
   lag.
 
 Resources
@@ -523,38 +524,41 @@ Resources
   `scope <https://en.wikipedia.org/wiki/Scope_(computer_science)>`__ and does
   not delete the instance until all references are gone.
 
-  For example, if you create an Object inside of a function and then end the
-  function, the variable exits scope, removing all references to the
-  Object instance. It has created a "memory leak." Every time you execute that
-  function, you leak more and more memory. If done frequently, you
-  consume so much RAM that it eventually lags the user's computer or crashes
-  the program.
+  For example, let's say you create an Object inside of a function and then end the
+  function. The Object's variable exits scope, removing all references to the
+  Object instance. But, the Object has not been deleted, so it's memory continues to
+  be in use. It has created a "memory leak." Every time you execute that function,
+  you leak more memory. If done frequently, you consume so much RAM that it
+  eventually lags the user's computer or crashes the program.
 
-  Conversely, if you create a Reference inside of a function and then end
-  the function, the Reference recognizes that the final reference to the data
-  is gone. It triggers an automatic ``free()`` on the instance in the
-  background. You do not leak any memory and your game continues running
-  smoothly.
+  Conversely, let's say you create a Reference inside of a function and then end
+  the function. When the variable exits scope, the Reference recognizes that the
+  final reference to the data is gone. It triggers an automatic ``free()`` on the
+  instance in the background. You do not leak any memory and your game continues
+  running smoothly.
 
   Resources will track references in the same way. Loading a file for the
   first time allocates a new instance. Subsequent loads simply return
-  the existing instance and if you no longer have any references, they
-  delete themselves for you. In addition, the Godot Editor has a built-in
-  feature to cache resources.
+  the existing instance. If you no longer have any references, they
+  delete themselves for you.
+
+  .. note::
+  
+    The Godot Editor has a built-in feature to cache resources.
 
 Scripts and Scenes
   Scripts are also resources. Every script file loads as a
   :ref:`Script <class_Script>` instance. And because every
   script file is its own class, you can rest assured that any constants
-  declared in a file are *static*. That is, it exists on the Script
-  rather than on Object instances to which you've assigned the script.
+  declared in the file are *static*. That is, the data exists on the
+  Script rather than on Object instances to which you've assigned the
+  script.
 
   Godot likewise loads a scene file
-  into a :ref:`PackedScene <class_PackedScene>` instance. You can even
-  build your own scenes using the
-  :ref:`PackedScene.pack() <class_PackedScene_method_pack>` method; This
-  can be useful for building your own tools for level generation, modding,
-  or in-game level editing.
+  into a :ref:`PackedScene <class_PackedScene>` instance. These are resources
+  that cache all information about creating and initializing a node hierarchy.
+  You can even build your own scenes using the
+  :ref:`PackedScene.pack() <class_PackedScene_method_pack>` method;
 
   .. note::
 
@@ -571,34 +575,37 @@ Scripts and Scenes
 
     To force Godot to create a new sub-resource, do X.
 
+If you load a filepath, you will get a Resource. And if that resource
+still has a reference somewhere, then loading the same filepath will return
+the same Resource instance.
 
-This feature extends into Resources so that
-attempting to load two variables from the same file path actually returns
-the same Resource class instance. You can create a new Resource instance
-either by calling ``.new()`` on the Resource's script, or by creating it
-in the Inspector. In these cases, you have a truly new instance because
-the resource has not yet been saved to a file. If you already have a
-Resource and you must create a duplicate of it, you can call the
-``.duplicate()`` method to force a duplication of the Resource's memory
-and return a new instance.
+You can create a new instance of a Resource...
+
+- in code by calling ``.new()`` on a Resource-deriving script.
+- in code by calling
+  :ref:`duplicate() <class_Resource_method_duplicate>``
+  on an existing Resource instance.
+- in the editor by clicking the "New File" icon in the Inspector.
+- in the editor by duplicating a Resource file in the FileSystem dock.
 
 You can also create your own
 :ref:`custom Resource types <doc_resources_custom_resources>`.
 They are effective tools for designing and organizing the data structures you
-need for your projects, in addition to a host of other benefits described in
-the linked documentation.
+need for your projects. The linked documentation describes a plethora of 
+additional benefits.
 
 Godot Engine doesn't, by default, keep track of scripts' names. It recognizes
 them just like any other Resource: by their file path. However, Godot 3.1
-added the ability to
-:ref:`define globally recognizable names <doc_scripting_continued_class_name>`.
-Support is limited to a few languages for now, but more support is planned in
-the future.
+added the ability to define 
+:ref:`script classes <doc_scripting_continued_class_name>`, i.e. global
+names for scripts. Support is limited to a few languages for now, but more
+support is planned in the future.
 
 .. note::
 
-  This is unrelated to the C# language's internal ability to force a name
-  for every class and reference each class in the project by name.
+  C# has its own internal ability to define names for scripts and reference
+  them, by name, *within* other C# scripts. These features
+  are unrelated to Godot's "script class" feature.
 
 For more information on reference-counting, see
 `this article <https://mortoray.com/2012/01/08/what-is-reference-counting/>`__.
@@ -610,7 +617,38 @@ compares to garbage collection, see
 The editor, tools, and plugins
 ------------------------------
 
-- The Godot Editor is a SceneTree
-- tool scripts
-- Creating plugins
-- EditorInspectorPlugins
+One of the most empowering features Godot has is the fact that the
+editor itself is also built using Godot Engine. This is a matter of
+function more than marketability.
+
+Because the Godot Editor has a SceneTree, it is possible to inject
+your own Nodes into it. This makes the creation of custom tools
+incredibly easy to do.
+
+1. Any script can be declared as a "tool" script. This will
+   enable that script's logic to execute in the editor.
+
+   To specify editor-only or game-only logic, you can check the 
+   script's current execution mode with
+   :ref:`Engine.is_editor_hint <class_Engine_property_is_editor_hint>`.
+   
+   Each scripting
+   language will have its own syntax for declaring tools. Please
+   consult the scripting documentation for your language of choice for
+   more information.
+
+2. If you need add to or modify the editor itself, Godot provides an
+   easy-to-use
+   :ref:`plugin API <class_EditorPlugin>` as well as the ability to
+   write :ref:`standalone editor scripts <class_EditorScript>`.
+   For more information about how to create plugins,
+   :ref:`click here <doc_making_plugins>`.
+
+3. There's no need to learn a domain-specific API just for writing
+   plugins. Instead, Godot enables you to re-use your knowledge of
+   programming its user interfaces for games.
+
+4. While writing a plugin, you can also add
+   :ref:`EditorInspectorPlugins <class_EditorInspectorPlugin>`
+   which let you override how your Nodes and Resources' data are
+   displayed in the Editor.
