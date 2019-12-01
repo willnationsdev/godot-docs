@@ -12,7 +12,7 @@ Object-oriented design
 
 Godot Engine uses an Object-Oriented design. This means it is
 made up of abstract templates that allow you to build concrete things.
-The abstract template is called a *class*. The things you actually interact
+Godot calls an abstract template a *class*. The things you actually interact
 with are *instances* of a class.
 
 Users can create content with Godot's large library of built-in classes, but
@@ -26,15 +26,15 @@ following elements:
   with a class.
 
 - constants: *Static* and unchanging pieces of data. By *static*, we
-  mean that the data is owned by the class, not by any one instance.
+  mean that the class owns the data, not any one instance.
 
-- signals: Declarations that something happened, similar to events
-  in other game engines.
+- signals: Declarations that something happened, like events in other game
+  engines.
 
 Every other class in Godot ``extends Object``, or extends something else that
 extends Object, at some remove. Each possesses all the properties, methods,
 constants, and signals of the class it extends plus those unique to
-it. This chaining of elements in classes is called "Inheritance."
+it. Programmers refer to this chaining of elements in classes as "Inheritance."
 
 As a Godot user, you will create a script file that defines a base class and
 a list of custom elements. These elements are then appended to the base class.
@@ -47,7 +47,7 @@ please see the language-specific sections of the :ref:`scripting documentation <
 To see a full description of any class, you can check the
 :ref:`Class Reference <doc_classes>`, also known as the 
 `API <https://en.wikipedia.org/wiki/Application_programming_interface>`__.
-The :ref:`Object API docs <class_Object>` help to demonstrate the above concepts.
+The :ref:`Object API docs <class_Object>` help to show the above concepts.
 
 .. _doc_reading_the_class_api:
 
@@ -69,7 +69,7 @@ text identifier, i.e. name. On the right is the default value of the property.
 .. image:: img/essentials_api_methods.png
 
 The methods table is a bit more complex. The left-hand column has the data type
-that is returned to you when you call, i.e. execute, the method. A ``void``
+that the method returns to you when you call it. A ``void``
 data type means that it does not return a value; the method itself does
 something. The right-hand column starts with the name of the method. A 
 parentheses-enclosed list of variables then follows. These are the "parameters"
@@ -81,9 +81,9 @@ Each parameter in the list follows the format
 parameters in the same order with compatible data types. If a default value is
 present, then you can omit it to have Godot assume its value.
 
-Some methods have special suffixes to more clearly indicate their behavior.
+Some methods have special suffixes to better describe their behavior.
 
-- `const`: calling the method on an instance does not modify that instance's
+- `const`: calling the method on an instance does not change that instance's
   data.
 
 - `virtual`: you can write your own version of the method to plug in behavior
@@ -156,7 +156,7 @@ We'll refer to these later in this guide as "tree features".
 
 The lack of a major distinction between a tree of nodes and a single node
 is what sets Godot apart. Nodes serve as the foundation of a flexible game
-world that you can freely manipulate.
+world that bends to your will.
 
 Notifications
 -------------
@@ -168,12 +168,12 @@ respond to these notifications and do things in the world.
 
 Users create a script that ``extends Node`` and which defines methods that
 respond to notifications. The Node instance passes these methods
-*back* to the engine which *calls* them at the correct time; Therefore, they
+*back* to the engine which *calls* them at the correct time; Thus, they
 are known as *callbacks*. They appear as virtual methods with leading
 underscores in the Class Reference. See the "Methods" table at the top of the
 :ref:`Node API docs<class_Node>` for examples.
 
-While the most frequently used notifications have their own callbacks,
+While the most frequently-used notifications have their own callbacks,
 Godot also has a master callback for handling any notification:
 :ref:`Object._notification <class_Object_method__notification>`. As
 you can see, notifications are an Object feature, so you will find them
@@ -198,13 +198,13 @@ questions:
 
 What is a "scene"?
 
-  The game world is built out of a node tree, but it wouldn't be reasonable to
+  Users build a node tree to form the game world, but it wouldn't be reasonable to
   build the entire tree in one
   `hardcoded <https://stackoverflow.com/questions/1895789/what-does-hard-coded-mean>`__,
   `monolithic <https://www.quora.com/What-is-the-difference-modular-vs-monolithic-programming-for-applications>`__ node hierarchy.
   
   Instead, we use tree feature #2 and subdivide our SceneTree's
-  entire node tree into subtrees. This lets us examine each
+  node tree into subtrees. This lets us examine each
   subtree in isolation to develop it, test it, and track its dependencies.
   We call these subtrees "scenes" and save them to files:
   ``.tscn`` and ``.scn`` for text and binary, respectively.
@@ -214,7 +214,7 @@ What is a "scene"?
 
 What is a "root node"?
 
-  Because every scene is a tree, it necessarily has a root node.
+  Because every scene is a tree, it must have a root node.
   Godot's architecture forces an Object-Oriented paradigm at every level
   of game design. All world content, even your environments, must be a direct
   extension of a single Node class.
@@ -225,21 +225,21 @@ How do I decide which node to use as root?
 
   For example, if you create 2D content, you can put it under a
   :ref:`Node <class_Node>` root or a :ref:`Node2D <class_Node2D>` root,
-  among other things. Each has a unique impact on their relationship to the
+  among other things. Each has a unique impact on their relationship with the
   content.
 
   A Node2D will position itself relative to its parent Node2D's
-  :ref:`Transform2D <class_Transform2D>`. A Node, however, will ignore the
-  parent's Transform2D because it does not have one. Therefore, your scene's 2D
+  :ref:`Transform2D <class_Transform2D>`. But, a Node will ignore the
+  parent's Transform2D because it does not have one. So, your scene's 2D
   content either will or will not follow a moving parent. This kind of
   `declarative code <https://stackoverflow.com/questions/129628/what-is-declarative-programming>`__
   by way of node composition is a core feature of Godot Engine.
 
-  In addition, the root node dictates how other scenes perceive the current
-  scene. By default, nested scenes appear as a single node (the root). It's
-  script then
+  The root node also dictates how other scenes perceive the current
+  scene. By default, nested scenes appear as a single node (the root). The root
+  node's script then
   `encapsulates <https://en.wikipedia.org/wiki/Encapsulation_(computer_programming)>`__
-  its internal nodes by providing an interface for interacting with them.
+  its internal nodes with an interface.
   
   Scenes allow users to design a class's
   `constructor <https://www.techopedia.com/definition/5656/constructor>`__
@@ -251,24 +251,23 @@ Why would a root node ever NOT be in 3D, 2D, or UI space?
   will be bundles of data or behavior with a direct link to the world. 
   
   This includes nodes that enable a behavior for something else. For example,
-  you might have a Jump node that handles configuration and calculations for
-  jump logic. Anything with a Jump node then has a common jump API and
-  implementation.
+  you might have a Jump node that configures and calculates jump logic.
+  Anything with a Jump node then has a common jump API and implementation.
   
   It also includes nodes that serve as standalone gameplay systems. For
-  example, you might have a TurnBasedCombat singleton that manages the
-  state of a turn-based game. Other nodes in the game then have a common
-  point of reference for safely handling data
+  example, you might have a TurnBasedCombat singleton that manages a game
+  genre's state. Other nodes in the game then have a common (and *safe*)
+  point of reference for handling data
   :ref:`they don't own <doc_autoloads_versus_internal_nodes>`.
 
-In other engines, users often have a workflow similar to this:
+In other engines, users often have a workflow like this:
 
 1. Create an ``entity``.
 2. Add behavioral ``components`` to it
 3. Save it as a reproducible ``prefab``
 4. Stick many instances of this prefab inside a ``level`` container.
 
-Godot instead just makes everything a ``node``.
+Godot instead makes everything a ``node``.
 
 1. Build a unique ``node`` that does what you need.
    1. A ``node`` that represents a thing in your world is an ``entity`` in name only.
@@ -277,8 +276,8 @@ Godot instead just makes everything a ``node``.
    1. Nodes wrap other nodes and thus are containers too.
 
 So Godot unifies entities, components, prefabs, and levels all together into
-just the concept of defining node classes. The Godot Editor is a visual class
-editor. Even the Godot Editor itself is just a single
+node classes. The Godot Editor is a visual class
+editor. Even the Godot Editor itself is a single
 `EditorNode <https://github.com/godotengine/godot/blob/master/editor/editor_node.h>`__
 class!
 
@@ -377,8 +376,8 @@ behaviors. But how do you actually make one node interact with another node?
 
 NodePaths
   The first and most common way is to use a :ref:`NodePath <class_NodePath>`. These
-  data types outline a relative path through a node tree or an absolute path
-  through the SceneTree to another node. Their syntax is similar to a linux
+  data types outline a path to another node. Paths can be relative through a
+  node tree or absolute from the SceneTree's root. Their syntax is like a linux
   file system. See the NodePath API docs linked above for examples.
 
   Once you have a NodePath, you can call
@@ -388,8 +387,7 @@ NodePaths
   .. note::
 
     NodePaths affect the relationship between nodes. Relying on a NodePath
-    implies having a dependency. For guidance on the best way to form
-    relationships between scenes, including with NodePaths,
+    implies having a dependency. For more information on scene relationships,
     please see the best practices documentation on
     :ref:`scene organization <doc_scene_organization>`.
     
@@ -409,8 +407,7 @@ NodePaths
 Groups
 
   Sometimes you need cross-scene collections of nodes. You could be cycling
-  through a subset of cameras, accessing all the lights in a room, or iterating
-  over all the enemies in a level.
+  through cameras, tracking lights, or iterating over enemies.
   
   For these situations, you can use "groups". A group is a string that you
   associate with a Node. The SceneTree instance will keep a list of which nodes
@@ -426,7 +423,7 @@ Groups
   :ref:`call a method on every node <class_SceneTree_method_call_group>` in a
   group, among other things.
 
-  For additional examples of groups in action, see the 
+  For more examples of groups in action, see the 
   :ref:`step-by-step tutorial's group introduction <doc_scripting_continued>` or
   the best practices documentation on
   :ref:`method propagation <doc_propagation>` within the 
@@ -437,26 +434,28 @@ Groups
 
 Signals
 
-  So far, you've learned how to work with descendant nodes and those internal
-  to a scene via exported NodePaths. You've also learned how to work with mass
-  groups of related nodes across scenes (groups). How then do you work with
-  nodes higher up the chain? Ancestral dependencies inhibit the reuse of scripts
-  and scenes and invite maintenance costs.
+  So far, you've learned how to work with descendant nodes and a scene's
+  internal nodes. You've also learned how to work with mass groups of
+  related nodes across scenes (groups). How then do you work with nodes higher
+  up the chain? Ancestral dependencies inhibit the reuse of scripts and scenes
+  and invite maintenance costs.
 
   What you want is for your descendant to know nothing about the ancestor.
-  Calling a method on a parent to pass them information implies that the
-  parent needs to have the given method. But wait! We can use Godot's
-  :ref:`Object.call <class_Object_method_call>` method to dynamically look up
-  and execute method calls; couldn't we then declare that we just want to call
-  other instances' methods? If we specify a function signature and have other
-  instances register their methods to be called, then we can iterate through the
-  list of connected methods and execute them without ever knowing which instances
-  are involved.
+  To call a method on the parent though, we must assume the parent has said
+  method. How to resolve this? Well, we can use Godot's
+  :ref:`Object.call <class_Object_method_call>` method to look up
+  and execute method calls. Couldn't we then declare that we want to call
+  *other* instances' methods?
+  
+  If we specify a function signature, we can wait
+  for other instances to register their methods for us to call. We then iterate
+  through the connected methods and execute them. We never even need to learn
+  which instance does what.
 
-  This concept is known as a "signal". Instances "connect" methods to another
-  instance's signal and when that instance "emits" the signal, it calls all
-  connected methods. There is no need for the signaling instance to know which
-  methods are connected or which instances they belong to!
+  Godot refers to this concept as a "signal". Instances "connect" methods to
+  another instance's signal. When that instance "emits" the signal, it calls
+  all connected methods. The signaling instance knows nothing of the
+  connected methods or their owning instances!
 
   General convention is to "call down, signal up" when communicating in a tree
   hierarchy. This keeps your nodes free of hierarchical dependencies and allows
@@ -474,35 +473,36 @@ Signals
 
 Memory with nodes, references, and resources
 --------------------------------------------
-
+(Hemingway stopping point)
 Computer science has many topics related to memory that are worth
 researching such as
 `stack vs. heap <https://www.geeksforgeeks.org/stack-vs-heap-memory-allocation>`__,
 `a breadth/depth of knowledge on data structures <https://www.studytonight.com/data-structures/stack-data-structure>`__,
 `algorithm analysis <https://www.studytonight.com/data-structures/aysmptotic-notations>`__, and
 `data-oriented design <https://en.wikipedia.org/wiki/Data-oriented_design>`__.
-However, as a Godot user, the primary memory 
+But, as a Godot user, the primary memory 
 issue you must learn to handle is memory management.
 
 Godot uses manual memory management. This means that you are
-responsible for safely allocating and freeing your own memory. Your
-game *has* to clean up memory at some point. You can either do it
-yourself, on your own terms, or via 
-`garbage collection <https://en.wikipedia.org/wiki/Garbage_collection_(computer_science)>`__
-which will stop unpredictably to handle it for you.
+responsible for allocating and freeing your own memory. Your
+game *has* to clean up memory at some point. You can either
+do it yourself or via
+`garbage collection <https://en.wikipedia.org/wiki/Garbage_collection_(computer_science)>`__.
+If you do it, you have full control over when you free memory (it is
+"deterministic"). If a garbage collector does it, it will stop
+your game at unpredictable points to handle it for you.
 
 .. note::
 
-  You can
-  read the specifics on how Godot internally handles its memory model backend
+  You can read the specifics of Godot's memory handling
   in its :ref:`core types <doc_core_types>` documentation.
 
 You can delete any Godot Object immediately with the
 `:ref:`.free() <class_Object_method_free>`` method. But, low-level memory
-management is a huge hassle, so Godot provides some conveniences to help you.
-Most of the time, you work with Objects deriving from either
+management is a hassle, so Godot provides tools to help you. Most of the
+time, you work with Objects deriving from either
 :ref:`Node <class_Node>` or :ref:`Resource <class_Resource>`. These classes
-have built-in systems to help manage memory for you in deterministic ways.
+have built-in systems to help you manage memory in deterministic ways.
 
 Nodes
   Nodes, as you've learned, form node tree hierarchies. Whenever you delete a
@@ -514,31 +514,32 @@ Nodes
 
   Nodes in particular also have a
   :ref:`queue_free() <class_Node_method_queue_free>` method. This delays
-  their deletion until the next idle frame to minimize any discernible
+  their deletion until the next idle frame to reduce any discernible
   lag.
 
 Resources
   Resources extend the :ref:`Reference <class_Reference>` class.
   References are Objects that use "reference-counted" memory. These keep track
   of how many references to the instance exist in 
-  `scope <https://en.wikipedia.org/wiki/Scope_(computer_science)>`__ and does
-  not delete the instance until all references are gone.
+  `scope <https://en.wikipedia.org/wiki/Scope_(computer_science)>`__. Only when
+  all references are gone do they finally delete their instance.
 
-  For example, let's say you create an Object inside of a function and then end the
-  function. The Object's variable exits scope, removing all references to the
-  Object instance. But, the Object has not been deleted, so it's memory continues to
-  be in use. It has created a "memory leak." Every time you execute that function,
-  you leak more memory. If done frequently, you consume so much RAM that it
-  eventually lags the user's computer or crashes the program.
+  For example, let's say you create an Object inside of a function and then end
+  the function. The Object's variable exits scope, removing all references to
+  the Object instance. But, you have not deleted the Object, so it's memory
+  continues to be in use. It has created a "memory leak." Every time you
+  execute that function, you leak more memory. If you execute this function
+  often, then it will consume ever-larger amounts of RAM. After a while, this
+  can lag the user's computer or even crash the program.
 
-  Conversely, let's say you create a Reference inside of a function and then end
-  the function. When the variable exits scope, the Reference recognizes that the
-  final reference to the data is gone. It triggers an automatic ``free()`` on the
+  But, if you create a Reference inside of a function and then end
+  the function. When the variable exits scope, the Reference sees that the
+  last data reference is gone. It triggers an automatic ``free()`` on the
   instance in the background. You do not leak any memory and your game continues
   running smoothly.
 
   Resources will track references in the same way. Loading a file for the
-  first time allocates a new instance. Subsequent loads simply return
+  first time allocates a new instance. Later loads only return
   the existing instance. If you no longer have any references, they
   delete themselves for you.
 
@@ -548,17 +549,15 @@ Resources
 
 Scripts and Scenes
   Scripts are also resources. Every script file loads as a
-  :ref:`Script <class_Script>` instance. And because every
-  script file is its own class, you can rest assured that any constants
-  declared in the file are *static*. That is, the data exists on the
-  Script rather than on Object instances to which you've assigned the
-  script.
+  :ref:`Script <class_Script>` instance. And because every script file is a
+  class, each constant that file declares is *static*. The data belongs to
+  the Script instance, not Object instances to which you've assigned it.
 
   Godot likewise loads a scene file
   into a :ref:`PackedScene <class_PackedScene>` instance. These are resources
-  that cache all information about creating and initializing a node hierarchy.
+  that cache information about creating and initializing a node hierarchy.
   You can even build your own scenes using the
-  :ref:`PackedScene.pack() <class_PackedScene_method_pack>` method;
+  :ref:`PackedScene.pack() <class_PackedScene_method_pack>` method.
 
   .. note::
 
@@ -575,9 +574,9 @@ Scripts and Scenes
 
     To force Godot to create a new sub-resource, do X.
 
-If you load a filepath, you will get a Resource. And if that resource
-still has a reference somewhere, then loading the same filepath will return
-the same Resource instance.
+If you load a filepath, you will get a Resource. Loading that same filepath
+again returns the same Resource instance. That is unless you release all
+references to the previous instance and free it.
 
 You can create a new instance of a Resource...
 
@@ -585,27 +584,27 @@ You can create a new instance of a Resource...
 - in code by calling
   :ref:`duplicate() <class_Resource_method_duplicate>``
   on an existing Resource instance.
-- in the editor by clicking the "New File" icon in the Inspector.
+- in the editor by clicking the "New" icon in the Inspector.
 - in the editor by duplicating a Resource file in the FileSystem dock.
 
 You can also create your own
 :ref:`custom Resource types <doc_resources_custom_resources>`.
-They are effective tools for designing and organizing the data structures you
-need for your projects. The linked documentation describes a plethora of 
-additional benefits.
+They are effective tools for designing and organizing your project's data
+structures. The linked documentation describes many more benefits.
 
 Godot Engine doesn't, by default, keep track of scripts' names. It recognizes
-them just like any other Resource: by their file path. However, Godot 3.1
-added the ability to define 
-:ref:`script classes <doc_scripting_continued_class_name>`, i.e. global
-names for scripts. Support is limited to a few languages for now, but more
-support is planned in the future.
+them like any other Resource: by their file path. But, Godot 3.1 added the
+ability to define
+:ref:`script classes <doc_scripting_continued_class_name>`, i.e. global names
+for scripts. Only a few languages have script class support for now, but
+Godot will add more in the future.
 
 .. note::
 
   C# has its own internal ability to define names for scripts and reference
-  them, by name, *within* other C# scripts. These features
-  are unrelated to Godot's "script class" feature.
+  them within other C# scripts. This is not the result of script classes.
+  Script classes would enable other languages and the editor itself to also
+  see C# class names.
 
 For more information on reference-counting, see
 `this article <https://mortoray.com/2012/01/08/what-is-reference-counting/>`__.
@@ -623,30 +622,28 @@ function more than marketability.
 
 Because the Godot Editor has a SceneTree, it is possible to inject
 your own Nodes into it. This makes the creation of custom tools
-incredibly easy to do.
+straightforward with almost no learning curve.
 
-1. Any script can be declared as a "tool" script. This will
-   enable that script's logic to execute in the editor.
+1. You can declare any script as a "tool" script. This enables
+   that script's logic to execute in the editor.
 
    To specify editor-only or game-only logic, you can check the 
    script's current execution mode with
    :ref:`Engine.is_editor_hint <class_Engine_property_is_editor_hint>`.
    
-   Each scripting
-   language will have its own syntax for declaring tools. Please
-   consult the scripting documentation for your language of choice for
-   more information.
+   Each scripting language will have its own syntax for declaring tools. Please
+   consult the scripting documentation for your language of choice for more
+   information.
 
-2. If you need add to or modify the editor itself, Godot provides an
+2. If you need to change the editor itself, Godot provides an
    easy-to-use
-   :ref:`plugin API <class_EditorPlugin>` as well as the ability to
+   :ref:`plugin API <class_EditorPlugin>`. For one-off edits, you can also
    write :ref:`standalone editor scripts <class_EditorScript>`.
    For more information about how to create plugins,
    :ref:`click here <doc_making_plugins>`.
 
-3. There's no need to learn a domain-specific API just for writing
-   plugins. Instead, Godot enables you to re-use your knowledge of
-   programming its user interfaces for games.
+3. There's no need to learn a domain-specific language for plugins.
+   Instead, Godot enables you to re-use your game UI knowledge.
 
 4. While writing a plugin, you can also add
    :ref:`EditorInspectorPlugins <class_EditorInspectorPlugin>`
