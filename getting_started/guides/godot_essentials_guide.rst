@@ -284,6 +284,32 @@ class!
 For more information on how Godot's classes work, see the best practices
 documentation on :ref:`what Godot classes are <doc_what_are_godot_classes>`.
 
+Servers and RIDs
+----------------
+
+Nodes embody Godot's high-level API. But, nodes are not optimal for
+high-performance code. When developers need to simulate anywhere up to tens of
+thousands of data points, nodes are bloated in comparison. They consume more
+memory than necessary and go through bottlenecks like tree traversal.
+
+For these situations, consider using Godot's
+`low-level Server API <https://godotengine.org/article/why-does-godot-use-servers-and-rids>`__.
+These are optimized systems that execute multithreaded rendering and physics
+processes. 
+
+Users can organize data however they want and pass them to the servers via
+opaque :ref:`RIDs <class_RID>`.
+
+For more information on using servers in script code, click
+:ref:`here <doc_using_servers>`.
+
+For more information on writing your own server in a C++ module, click
+:ref:`here <doc_custom_godot_servers>`.
+
+To write your own server-like script code in Godot, try combining an
+:ref:`autoload singleton <doc_singletons_autoload>` with
+:ref:`multithreaded <class_Thread>` code.
+
 Node flexibility
 ----------------
 
