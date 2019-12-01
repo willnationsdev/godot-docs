@@ -284,6 +284,9 @@ class!
 For more information on how Godot's classes work, see the best practices
 documentation on :ref:`what Godot classes are <doc_what_are_godot_classes>`.
 
+For more information on how easily nodes can be rearranged to fit your needs,
+see the tutorial on :ref:`Node flexibility <doc_node_flexibility>`.
+
 Servers and RIDs
 ----------------
 
@@ -303,96 +306,18 @@ opaque :ref:`RIDs <class_RID>`.
 For more information on using servers in script code, click
 :ref:`here <doc_using_servers>`.
 
-For more information on writing your own server in a C++ module, click
+For more information on writing your own server in C++ engine code, click
 :ref:`here <doc_custom_godot_servers>`.
 
 To write your own server-like script code in Godot, try combining an
 :ref:`autoload singleton <doc_singletons_autoload>` with
 :ref:`multithreaded <class_Thread>` code.
 
-Node flexibility
-----------------
+For more information on writing multithreaded code, click
+:ref:`here <doc_using_multiple_threads>`.
 
-So let's finally get started!
-
-1. "We want to create a 2D scene."
-   1. Create Node2D.
-
-1. "We want to create an image that fetches an image from the Internet, plays an SFX while loading and displays an animated loading icon, and then plays a sound effect *ding* when it loads and *pops* on the screen a bit."
-   1. Create Sprite child as child of Node2D and give it the following children:
-   1. HttpRequest: to submit the request for the image data over the Internet.
-   1. AudioStreamPlayer: to play the sound effect *ding*.
-   1. Tween: to animate the loading icon and scale the sprite's image to *pop* when done.
-   - Note that using nodes, we have a vague idea of what something does at a glance.
-     It *is* a Sprite that *has* the ability to communicate over the Internet, play audio, and do tween animations.
-
-1. "Right now, the Sprite is part of an environment, but we want it to be its own class. How do we do that?"
-   1. Right-click the Sprite node and select, "Save Branch as Scene". Save the scene file. Voila, it is now its own class.
-   1. Notice how the original scene has automatically replaced the node tree with an instance of our new scene.
-   1. Now click the slideshow icon beside the Sprite. Now you are editing the Sprite's class in a new tab!
-
-1. "What if I want to re-use parts of my new scene back in my old scene?"
-   1. In new scene, set AudioStreamPlayer property ``autoplay`` to true. Save the scene.
-   1. Switch back to environment scene. Right click root node and select, "Merge From Scene".
-   1. Click the top-right button of the popup to select the new scene. It's node tree will be displayed.
-   1. Select the AudioStreamPlayer and select "OK".
-   1. That specific AudioStreamPlayer configuration will be copied from that scene to the current scene. Any tree of nodes can be copied this way.
-   1. Confirm by seeing that the ``autoplay`` property is checked rather than unchecked (which is the default).
-
-1. "What if I want to be able to tweak and/or override a node's internals from an owning scene?"
-   1. In the environment scene, right-click the Sprite scene instance and toggle on, "Editable Children".
-   1. Now you can directly access that scene's child nodes!
-
-1. "What if I don't want other people on my team to be able to see and edit a node's internals from the editor?"
-   1. Create a GDScript file like so:
-
-        tool
-        extends Sprite
-        class_name InternetTweenSprite
-
-        var http
-        var audio
-        var tween
-
-        func _init():
-            http = HttpRequest.new()
-            audio = AudioStreamPlayer.new()
-            tween = Tween.new()
-            add_child(http)
-            add_child(audio)
-            add_child(tween)
-            texture = preload("res://icon.png")
-            modulate = Color(1, 0, 0)
-
-      Voila, you now have a custom scripted class with all of the same features and none of it exposed to the user!
-
-1. "What if I want to create a new class that extends my custom script?"
-   1. Right-click the InternetTweenSprite and select, "Extend Script".
-   1. The ScriptCreateDialog will open with "InternetTweenSprite" prefilled as the class to inherit from!
-   1. When you create the script, the node will automatically switch to using the new script.
-
-1. "What if I want to create a new class that extends my scene?"
-   1. Option A:
-      1. From the toolbar, select ``Scene > New Inherited Scene...``.
-      1. Select the ``internet_tween_sprite.tscn`` file.
-      1. Save your new scene. Done!
-   1. Option B:
-      1. From the toolbar, select ``Scene > New Scene``. 
-      1. Select the chain-link icon beside the plus sign in the ``Scene`` dock.
-      1. Select the ``internet_tween_sprite.tscn`` file.
-      1. Save your new scene. Done!
-
-1. "Now I want my environment to just be a character. How do I re-use the same node hierarchy, but put it under a KinematicBody2D instead of a Node2D? Do I have to remake it from scratch?"
-   1. Option A:
-      1. Create a new scene.
-      1. Use the "Merge from Scene" option to migrate a subset of desired nodes into the new scene.
-   1. Option B:
-      1. Right-click the root node and select, "Change Node".
-      1. Choose KinematicBody2D. Now the entire scene is a KinematicBody2D instead of a Node2D!
-
-1. "I've decided I no longer want this to be a character at all, but a scene that extends my InternetTweenSprite which is a child of the character. What do I do?"
-   1. Right-click the InternetTweenSprite and select, "Make Scene Root".
-   1. If you want to, reparent the other child nodes under the new root and delete the old root node.
+For more information on which APIs in Godot are thread-safe, click
+:ref:`here <doc_thread_safe_apis>`.
 
 Navigating trees
 ----------------
@@ -439,7 +364,7 @@ Groups
   associate with a Node. The SceneTree instance will keep a list of which nodes
   are in which group.
 
-  .. image:: img/essentials_node_dock_groups
+  .. image:: img/essentials_node_dock_groups.png
 
   Nodes can be in any number of groups. You can
   :ref:`add them <class_Node_add_to_group>` to groups,
@@ -499,7 +424,7 @@ Signals
 
 Memory with nodes, references, and resources
 --------------------------------------------
-(Hemingway stopping point)
+
 Computer science has many topics related to memory that are worth
 researching such as
 `stack vs. heap <https://www.geeksforgeeks.org/stack-vs-heap-memory-allocation>`__,
