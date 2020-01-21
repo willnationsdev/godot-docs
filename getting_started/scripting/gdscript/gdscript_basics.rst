@@ -642,6 +642,8 @@ possible to add explicit type specification::
 
 Assigning a value of an incompatible type will raise an error.
 
+.. _doc_gdscript_enums:
+
 Enums
 ^^^^^
 
