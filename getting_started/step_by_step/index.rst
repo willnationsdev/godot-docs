@@ -19,3 +19,4 @@ Step by step
    filesystem
    scene_tree
    singletons_autoload
+   how_to_read_the_godot_api
